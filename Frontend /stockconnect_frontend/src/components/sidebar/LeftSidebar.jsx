@@ -28,14 +28,14 @@ const LeftSidebar = () => {
             <NavLink
               key={item.name}
               to={item.path}
-              className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium ${isActive
-                ? 'bg-emerald-500/10 text-emerald-400 font-semibold'
+              className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium group ${isActive
+                ? 'bg-[#fad059] text-slate-900 font-bold shadow-sm'
                 : 'hover:bg-slate-800 hover:text-white text-slate-400'
                 }`}
             >
               {({ isActive }) => (
                 <>
-                  <item.icon size={20} className={isActive ? 'text-emerald-400' : 'text-slate-400'} />
+                  <item.icon size={20} className={isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-[#fad059] transition-colors'} />
                   <span>{item.name}</span>
                 </>
               )}
