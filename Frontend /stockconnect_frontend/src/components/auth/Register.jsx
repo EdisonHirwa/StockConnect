@@ -7,31 +7,10 @@ const Register = () => {
   return (
     <div className="min-h-screen flex text-slate-800 font-sans">
       {/* Left Branding Side */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 text-white flex-col justify-between p-12 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#fad059]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
-
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-10">
-            <img src={logo} alt="StockConnect Logo" className="h-[42px] w-auto rounded-xl" />
-            <span className="text-3xl font-bold tracking-tight text-white">StockConnect</span>
-          </div>
-        </div>
-
-        <div className="relative z-10 max-w-lg">
-          <h1 className="text-5xl font-extrabold leading-tight mb-6 text-white">
-            Start your journey <br />
-            <span className="text-[#fad059]">today.</span>
-          </h1>
-          <p className="text-slate-400 text-lg font-medium leading-relaxed">
-            Create a free account and experience the most intuitive trading platform on the market.
-          </p>
-        </div>
-
-        <div className="relative z-10">
-          <p className="text-slate-500 text-sm font-medium">© 2026 StockConnect. All rights reserved.</p>
-        </div>
+      <div 
+        className="hidden lg:flex w-1/2 bg-black text-white flex-col justify-between p-12 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url(${logo})` }}
+      >
       </div>
 
       {/* Right Register Form Side */}

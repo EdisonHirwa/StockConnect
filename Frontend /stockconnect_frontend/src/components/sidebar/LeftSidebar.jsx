@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Compass, ArrowRightLeft, Briefcase, Wallet, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Compass, ArrowRightLeft, Briefcase, Wallet, LogOut } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -8,7 +8,6 @@ const navItems = [
   { name: 'Trade', icon: ArrowRightLeft, path: '/trade' },
   { name: 'Portfolio', icon: Briefcase, path: '/portfolio' },
   { name: 'Wallet', icon: Wallet, path: '/wallet' },
-  { name: 'Community', icon: Users, path: '/community' },
 ];
 
 const LeftSidebar = () => {
