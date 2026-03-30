@@ -4,5 +4,5 @@ public enum Role {
     SUPER_ADMIN,
     MARKET_ADMIN,
     TRADER,
-    AUDITOR
+    COMPANY_REP
 }

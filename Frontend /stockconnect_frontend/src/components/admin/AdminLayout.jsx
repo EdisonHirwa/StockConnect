@@ -1,7 +1,9 @@
-import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Settings, LogOut, Bell, Search, Menu } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
+import { useAuth } from '../../context/AuthContext';
+import LogoutModal from '../shared/LogoutModal';
 
 const adminNavItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
@@ -10,6 +12,14 @@ const adminNavItems = [
 ];
 
 const AdminLayout = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   return (
     <div className="flex h-screen bg-[#f4f7f6] font-sans">
       {/* Sidebar */}
@@ -41,10 +51,20 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-300 mt-auto">
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 mt-auto w-full"
+        >
           <LogOut size={20} />
           <span className="font-medium">Logout Admin</span>
-        </div>
+        </button>
+
+        {showModal && (
+          <LogoutModal
+            onConfirm={handleLogout}
+            onCancel={() => setShowModal(false)}
+          />
+        )}
       </div>
 
       {/* Main Content */}
