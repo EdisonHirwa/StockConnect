@@ -31,7 +31,13 @@ const Login = () => {
     setLoading(true);
     try {
       const data = await loginUser({ email: form.email, password: form.password });
-      saveSession({ accessToken: data.accessToken, role: data.role, userId: data.userId });
+      saveSession({
+        accessToken:  data.accessToken,
+        role:         data.role,
+        userId:       data.userId,
+        fullName:     data.fullName     || '',
+        phoneNumber:  data.phoneNumber  || '',
+      });
       navigate(ROLE_REDIRECT[data.role] || '/dashboard');
     } catch (err) {
       setError(err.message);

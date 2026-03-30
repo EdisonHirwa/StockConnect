@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import LeftSidebar from '../sidebar/LeftSidebar';
 import RightSidebar from '../sidebar/RightSidebar';
-import TopBar from '../header/TopBar';
+import HeaderBar from '../shared/HeaderBar';
 
 const DashboardLayout = () => {
   return (
@@ -12,7 +12,7 @@ const DashboardLayout = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full bg-white rounded-tl-[2rem] rounded-bl-[2rem] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] overflow-hidden">
-        <TopBar />
+        <HeaderBar />
         <div className="flex-1 overflow-y-auto no-scrollbar pb-8">
           <Outlet />
         </div>

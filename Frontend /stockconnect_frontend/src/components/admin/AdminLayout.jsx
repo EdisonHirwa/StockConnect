@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, Bell, Search, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 import { useAuth } from '../../context/AuthContext';
 import LogoutModal from '../shared/LogoutModal';
+import HeaderBar from '../shared/HeaderBar';
 
 const adminNavItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
@@ -69,37 +70,7 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Top Header */}
-        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-          <div className="flex items-center gap-4 flex-1">
-            <button className="lg:hidden text-slate-500 hover:text-slate-700">
-              <Menu size={24} />
-            </button>
-            <div className="hidden md:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 w-96 focus-within:ring-2 focus-within:ring-[#fad059]/50 focus-within:border-[#fad059] transition-all">
-              <Search className="text-slate-400 mr-3" size={18} />
-              <input
-                type="text"
-                placeholder="Search users, transactions..."
-                className="bg-transparent border-none outline-none text-sm w-full font-medium text-slate-700 placeholder:text-slate-400"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <button className="relative text-slate-500 hover:text-slate-700 transition-colors">
-              <Bell size={22} />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-            </button>
-            <div className="flex items-center gap-3 cursor-pointer pl-6 border-l border-slate-200">
-              <div className="w-10 h-10 rounded-full bg-slate-900 text-[#fad059] flex items-center justify-center font-bold text-lg shadow-sm">
-                A
-              </div>
-              <div className="hidden md:block">
-                <p className="text-sm font-bold text-slate-800">Administrator</p>
-                <p className="text-xs text-slate-500 font-medium">System Role</p>
-              </div>
-            </div>
-          </div>
-        </header>
+        <HeaderBar searchPlaceholder="Search users, transactions..." />
 
         {/* Dynamic Content */}
         <main className="flex-1 overflow-y-auto p-8 bg-[#f4f7f6]">

@@ -8,18 +8,23 @@ public class AuthResponseDTO {
     private long expiresIn;
     private String userId;
     private String role;
+    private String fullName;
+    private String phoneNumber;
 
     public AuthResponseDTO() {}
 
     public AuthResponseDTO(String accessToken, String refreshToken,
                            String tokenType, long expiresIn,
-                           String userId, String role) {
+                           String userId, String role,
+                           String fullName, String phoneNumber) {
         this.accessToken  = accessToken;
         this.refreshToken = refreshToken;
         this.tokenType    = tokenType;
         this.expiresIn    = expiresIn;
         this.userId       = userId;
         this.role         = role;
+        this.fullName     = fullName;
+        this.phoneNumber  = phoneNumber;
     }
 
     // ── Builder ───────────────────────────────────────────────────────────────
@@ -33,6 +38,8 @@ public class AuthResponseDTO {
         private long expiresIn;
         private String userId;
         private String role;
+        private String fullName;
+        private String phoneNumber;
 
         public Builder accessToken(String v)  { this.accessToken = v; return this; }
         public Builder refreshToken(String v) { this.refreshToken = v; return this; }
@@ -40,9 +47,11 @@ public class AuthResponseDTO {
         public Builder expiresIn(long v)      { this.expiresIn = v; return this; }
         public Builder userId(String v)       { this.userId = v; return this; }
         public Builder role(String v)         { this.role = v; return this; }
+        public Builder fullName(String v)     { this.fullName = v; return this; }
+        public Builder phoneNumber(String v)  { this.phoneNumber = v; return this; }
 
         public AuthResponseDTO build() {
-            return new AuthResponseDTO(accessToken, refreshToken, tokenType, expiresIn, userId, role);
+            return new AuthResponseDTO(accessToken, refreshToken, tokenType, expiresIn, userId, role, fullName, phoneNumber);
         }
     }
 
@@ -60,4 +69,8 @@ public class AuthResponseDTO {
     public void setUserId(String v)              { this.userId = v; }
     public String getRole()                      { return role; }
     public void setRole(String v)                { this.role = v; }
+    public String getFullName()                  { return fullName; }
+    public void setFullName(String v)            { this.fullName = v; }
+    public String getPhoneNumber()               { return phoneNumber; }
+    public void setPhoneNumber(String v)         { this.phoneNumber = v; }
 }

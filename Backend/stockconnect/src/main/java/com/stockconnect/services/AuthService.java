@@ -91,6 +91,8 @@ public class AuthService {
                 .expiresIn(jwtService.getAccessTokenExpMs() / 1000)
                 .userId(user.getId().toString())
                 .role(user.getRole().name())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
                 .build();
     }
 }
