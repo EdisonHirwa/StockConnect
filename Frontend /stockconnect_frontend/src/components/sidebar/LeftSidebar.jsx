@@ -1,17 +1,26 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Compass, ArrowRightLeft, Briefcase, Wallet, Users, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Compass, ArrowRightLeft, Briefcase, Wallet, LogOut } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
+import { useAuth } from '../../context/AuthContext';
+import LogoutModal from '../shared/LogoutModal';
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { name: 'Discover', icon: Compass, path: '/discover' },
   { name: 'Trade', icon: ArrowRightLeft, path: '/trade' },
   { name: 'Portfolio', icon: Briefcase, path: '/portfolio' },
   { name: 'Wallet', icon: Wallet, path: '/wallet' },
-  { name: 'Community', icon: Users, path: '/community' },
 ];
 
 const LeftSidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   return (
     <div className="w-[260px] h-full bg-slate-900 text-slate-300 flex flex-col justify-between p-6 shrink-0 transition-all duration-300">
       <div>
@@ -45,10 +54,20 @@ const LeftSidebar = () => {
       </div>
 
       {/* Logout */}
-      <div className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-300 mt-auto">
+      <button
+        onClick={() => setShowModal(true)}
+        className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 mt-auto w-full"
+      >
         <LogOut size={20} />
         <span className="font-medium">Logout</span>
-      </div>
+      </button>
+
+      {showModal && (
+        <LogoutModal
+          onConfirm={handleLogout}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };

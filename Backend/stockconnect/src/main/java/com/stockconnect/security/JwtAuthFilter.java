@@ -13,7 +13,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
+/**
+ * Validates the JWT on every request.
+ *
+ * Sliding inactivity window:
+ *   If the token is valid but has less than half its total lifetime remaining,
+ *   a freshly-signed token (full 15 min) is issued and returned in the
+ *   "X-Refreshed-Token" response header.  The frontend should read this header
+ *   and replace the stored token so the 15-minute clock resets with activity.
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -48,15 +58,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // ── Authenticate ──────────────────────────────────────────
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    // ── Sliding inactivity window ─────────────────────────────
+                    // If less than half of the token's lifetime remains, issue a
+                    // fresh token so an active user is never logged out mid-session.
+                    Date expiry       = jwtService.extractExpiration(jwt);
+                    long remainingMs  = expiry.getTime() - System.currentTimeMillis();
+                    long halfLifeMs   = jwtService.getAccessTokenExpMs() / 2; // 7.5 min
+
+                    if (remainingMs < halfLifeMs) {
+                        String refreshedToken = jwtService.generateAccessToken(
+                                (com.stockconnect.models.User) userDetails);
+                        // Expose the header so the browser JS can read it
+                        response.setHeader("X-Refreshed-Token", refreshedToken);
+                        response.setHeader("Access-Control-Expose-Headers", "X-Refreshed-Token");
+                    }
                 }
             }
         } catch (Exception ignored) {
-            // Invalid token — Spring Security returns 403 naturally
+            // Invalid / expired token — Spring Security returns 401 naturally
         }
 
         filterChain.doFilter(request, response);

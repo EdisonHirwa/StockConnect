@@ -3,8 +3,8 @@ spring:
     name: stockconnect
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/stockconnect
-    username: postgres
+    url: jdbc:postgresql://localhost:5432/StockConnectDb
+    username: edison
     password: 'Admin@123'
     driver-class-name: org.postgresql.Driver
 
@@ -25,3 +25,11 @@ jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration-ms: 900000        # 15 minutes (access token)
   refresh-expiration-ms: 604800000  # 7 days (refresh token)
+
+# Super Admin seed credentials (used once at startup if no SUPER_ADMIN exists)
+app:
+  super-admin:
+    full-name: Super Admin
+    email: admin@stockconnect.com
+    password: Admin@SuperSecure123
+    phone-number: "+250 700 000 000"

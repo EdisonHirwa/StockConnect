@@ -1,6 +1,6 @@
 package com.stockconnect.controllers;
 
-import com.stockconnect.models.PortfolioHolding;
+import com.stockconnect.dto.PortfolioHoldingDTO;
 import com.stockconnect.models.User;
 import com.stockconnect.services.PortfolioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/portfolio")
@@ -19,9 +20,14 @@ public class PortfolioController {
     @Autowired
     private PortfolioService portfolioService;
 
+    /** GET /api/portfolio — returns safe DTOs (no nested User/Company entities) */
     @GetMapping
-    public ResponseEntity<List<PortfolioHolding>> getMyPortfolio(Authentication authentication) {
+    public ResponseEntity<List<PortfolioHoldingDTO>> getMyPortfolio(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(portfolioService.getPortfolio(user.getId()));
+        List<PortfolioHoldingDTO> dtos = portfolioService.getPortfolio(user.getId())
+                .stream()
+                .map(PortfolioHoldingDTO::from)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 }

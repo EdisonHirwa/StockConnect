@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.*.local
+# .env.example is intentionally NOT here so it can be committed as a template
+

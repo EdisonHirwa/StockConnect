@@ -1,56 +1,87 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { ArrowRight, Mail, Lock } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
+import { loginUser } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
+
+const ROLE_REDIRECT = {
+  SUPER_ADMIN:  '/admin/dashboard',
+  MARKET_ADMIN: '/market-admin/dashboard',
+  TRADER:       '/dashboard',
+  COMPANY_REP:  '/dashboard',
+};
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { saveSession } = useAuth();
+
+  const [form, setForm]       = useState({ email: '', password: '' });
+  const [error, setError]     = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const data = await loginUser({ email: form.email, password: form.password });
+      saveSession({
+        accessToken:  data.accessToken,
+        role:         data.role,
+        userId:       data.userId,
+        fullName:     data.fullName     || '',
+        phoneNumber:  data.phoneNumber  || '',
+      });
+      navigate(ROLE_REDIRECT[data.role] || '/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex text-slate-800 font-sans">
       {/* Left Branding Side */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 text-white flex-col justify-between p-12 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#fad059]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
-
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-10">
-            <img src={logo} alt="StockConnect Logo" className="h-[42px] w-auto rounded-xl" />
-            <span className="text-3xl font-bold tracking-tight text-white">StockConnect</span>
-          </div>
-        </div>
-
-        <div className="relative z-10 max-w-lg">
-          <h1 className="text-5xl font-extrabold leading-tight mb-6 text-white">
-            Your gateway to <br />
-            <span className="text-[#fad059]">global markets.</span>
-          </h1>
-          <p className="text-slate-400 text-lg font-medium leading-relaxed">
-            Trade stocks, ETFs, and manage your portfolio with professional-level tools and insights, all in one place.
-          </p>
-        </div>
-
-        <div className="relative z-10">
-          <p className="text-slate-500 text-sm font-medium">© 2026 StockConnect. All rights reserved.</p>
-        </div>
-      </div>
+      <div
+        className="hidden lg:flex w-1/2 bg-black text-white flex-col justify-between p-12 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url(${logo})` }}
+      />
 
       {/* Right Login Form Side */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#f4f7f6]">
         <div className="w-full max-w-md bg-white p-10 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100">
-          
+
           <div className="mb-10 text-center lg:text-left">
             <h2 className="text-3xl font-extrabold text-slate-900 mb-2 mt-4 lg:mt-0">Welcome back</h2>
             <p className="text-slate-500 font-medium">Please enter your details to sign in.</p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Error banner */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm font-medium px-4 py-3 rounded-xl">
+                {error}
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#fad059] transition-colors" size={20} />
-                <input 
-                  type="email" 
-                  placeholder="name@company.com" 
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="name@company.com"
+                  required
                   className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                 />
               </div>
@@ -63,19 +94,24 @@ const Login = () => {
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#fad059] transition-colors" size={20} />
-                <input 
-                  type="password" 
-                  placeholder="••••••••" 
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
                   className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                 />
               </div>
             </div>
 
-            <button 
-              type="button" 
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-transform transform active:scale-95 shadow-md mt-8"
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-transform transform active:scale-95 shadow-md mt-8"
             >
-              Sign In <ArrowRight size={18} />
+              {loading ? 'Signing in…' : <> Sign In <ArrowRight size={18} /> </>}
             </button>
           </form>
 

@@ -8,6 +8,14 @@ import Discover from './pages/trader/Discover';
 import Trade from './pages/trader/Trade';
 import Portfolio from './pages/trader/Portfolio';
 import Wallet from './pages/trader/Wallet';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import SystemSettings from './pages/admin/SystemSettings';
+import MarketAdminLayout from './components/marketAdmin/MarketAdminLayout';
+import CompanyManagement from './pages/marketAdmin/CompanyManagement';
+import MarketOverview from './pages/marketAdmin/MarketOverview';
+import MarketAnalytics from './pages/marketAdmin/MarketAnalytics';
 import './App.css';
 
 function App() {
@@ -26,7 +34,22 @@ function App() {
           <Route path="trade" element={<Trade />} />
           <Route path="portfolio" element={<Portfolio />} />
           <Route path="wallet" element={<Wallet />} />
-          <Route path="community" element={<div className="p-8 font-bold text-slate-800 text-2xl">Community Page</div>} />
+        </Route>
+
+        {/* Super Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="settings" element={<SystemSettings />} />
+        </Route>
+
+        {/* Market Admin Routes */}
+        <Route path="/market-admin" element={<MarketAdminLayout />}>
+          <Route index element={<Navigate to="/market-admin/companies" replace />} />
+          <Route path="dashboard" element={<MarketOverview />} />
+          <Route path="companies" element={<CompanyManagement />} />
+          <Route path="analytics" element={<MarketAnalytics />} />
         </Route>
       </Routes>
     </BrowserRouter>
