@@ -5,9 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const USD_TO_RWF = 1400;
 const fmtRWF = (v) => `RWF ${Number(v ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-const fmtUSD = (v) => `$${(Number(v ?? 0) / USD_TO_RWF).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtPct = (v) => `${v >= 0 ? '+' : ''}${Number(v).toFixed(2)}%`;
 
 const ROLE_META = {
@@ -164,10 +162,9 @@ const Portfolio = () => {
             <Briefcase size={15} />
             <span className="text-xs font-bold uppercase tracking-wide">Portfolio Value</span>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 mb-0.5">
+          <div className="text-2xl font-extrabold text-slate-900 mb-0.5 mt-3">
             {loading ? '—' : fmtRWF(totalValue)}
           </div>
-          <div className="text-sm text-slate-400">{loading ? '' : fmtUSD(totalValue)}</div>
         </div>
 
         {/* Total Cost Basis */}
@@ -176,10 +173,9 @@ const Portfolio = () => {
             <User size={15} />
             <span className="text-xs font-bold uppercase tracking-wide">Cost Basis</span>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 mb-0.5">
+          <div className="text-2xl font-extrabold text-slate-900 mb-0.5 mt-3">
             {loading ? '—' : fmtRWF(totalCost)}
           </div>
-          <div className="text-sm text-slate-400">{loading ? '' : fmtUSD(totalCost)}</div>
         </div>
 
         {/* Unrealized P&L */}
@@ -188,7 +184,7 @@ const Portfolio = () => {
             {totalPnl >= 0 ? <TrendingUp size={15} className="text-emerald-500" /> : <TrendingDown size={15} className="text-red-500" />}
             <span className="text-xs font-bold uppercase tracking-wide">Unrealized P&amp;L</span>
           </div>
-          <div className={`text-2xl font-extrabold mb-0.5 ${totalPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <div className={`text-2xl font-extrabold mb-0.5 mt-3 ${totalPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {loading ? '—' : (totalPnl >= 0 ? '+' : '') + fmtRWF(totalPnl)}
           </div>
           <div className={`text-sm font-semibold ${totalPnl >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
@@ -251,15 +247,12 @@ const Portfolio = () => {
                       </td>
                       <td className="px-6 py-4 text-right text-slate-600 font-medium">
                         <div>{fmtRWF(h.averageBuyPrice)}</div>
-                        <div className="text-xs text-slate-400">{fmtUSD(h.averageBuyPrice)}</div>
                       </td>
                       <td className="px-6 py-4 text-right text-slate-600 font-medium">
                         <div>{fmtRWF(h.currentPrice)}</div>
-                        <div className="text-xs text-slate-400">{fmtUSD(h.currentPrice)}</div>
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-slate-900">
                         <div>{fmtRWF(h.totalValue)}</div>
-                        <div className="text-xs text-slate-400">{fmtUSD(h.totalValue)}</div>
                       </td>
                       <td className={`px-6 py-4 text-right font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                         <div>{pnl >= 0 ? '+' : ''}{fmtRWF(pnl)}</div>

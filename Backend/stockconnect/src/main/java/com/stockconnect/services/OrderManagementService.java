@@ -42,18 +42,29 @@ public class OrderManagementService {
         Company company = companyService.getCompanyById(companyId);
 
         if (type == OrderType.MARKET) {
-            price = company.getCurrentPrice(); // Simplistic assumption for MARKET order initial lock
+            price = company.getCurrentPrice(); 
         }
 
         BigDecimal totalCost = price.multiply(BigDecimal.valueOf(quantity));
-        
-        // Lock funds safely instead of directly withdrawing
         walletLedgerService.lockFunds(userId, totalCost);
 
         Order order = new Order(user, company, OrderSide.BUY, type, price, quantity);
         Order savedOrder = orderRepository.save(order);
 
-        // Trigger matching engine
+        // If it's a MARKET order, simulate an instant counter-party (System Market Maker)
+        if (type == OrderType.MARKET) {
+            User systemUser = userRepository.findByEmail("admin@stockconnect.com")
+                                            .orElseThrow(() -> new RuntimeException("System Market Maker not found"));
+            
+            // Create counter sell order
+            Order systemSell = new Order(systemUser, company, OrderSide.SELL, OrderType.MARKET, price, quantity);
+            systemSell = orderRepository.save(systemSell);
+            
+            // Ensure system has enough locked shares so portfolio service doesn't complain during deduction
+            portfolioService.addShares(systemUser.getId(), company, quantity, price);
+            portfolioService.lockShares(systemUser.getId(), company.getId(), quantity);
+        }
+
         matchingEngineService.matchOrders(companyId);
 
         return savedOrder;
@@ -74,7 +85,21 @@ public class OrderManagementService {
         Order order = new Order(user, company, OrderSide.SELL, type, price, quantity);
         Order savedOrder = orderRepository.save(order);
 
-        // Trigger matching engine
+        // If it's a MARKET order, simulate an instant counter-party (System Market Maker)
+        if (type == OrderType.MARKET) {
+            User systemUser = userRepository.findByEmail("admin@stockconnect.com")
+                                            .orElseThrow(() -> new RuntimeException("System Market Maker not found"));
+            
+            // Create counter buy order
+            Order systemBuy = new Order(systemUser, company, OrderSide.BUY, OrderType.MARKET, price, quantity);
+            systemBuy = orderRepository.save(systemBuy);
+            
+            // Ensure system has enough locked funds so wallet ledger service doesn't complain during deduction
+            BigDecimal totalCost = price.multiply(BigDecimal.valueOf(quantity));
+            walletLedgerService.deposit(systemUser.getId(), totalCost, "System Liquidity Deposit", null);
+            walletLedgerService.lockFunds(systemUser.getId(), totalCost);
+        }
+
         matchingEngineService.matchOrders(companyId);
 
         return savedOrder;

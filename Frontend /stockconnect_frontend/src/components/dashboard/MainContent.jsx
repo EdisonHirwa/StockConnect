@@ -1,14 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { companyService } from '../../services/companyService';
 
 const marketStatuses = [
-  { name: 'Kenyan Stocks', status: 'Closed', flag: '🇰🇪' },
-  { name: 'US Stocks', status: 'Open', flag: '🇺🇸' },
-  { name: 'US ETFs', status: 'Open', flag: '🇺🇸' },
-  { name: 'CDSC', status: 'Open', flag: '🏛️' },
+  { name: 'Rwandan Stocks', status: 'Open', flag: '🇷🇼' },
 ];
 
 const MainContent = () => {
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await companyService.getAllCompanies();
+        setCompanies(data);
+      } catch (error) {
+        console.error('Failed to fetch companies:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
   return (
     <div className="p-8 max-w-[1200px] mx-auto w-full">
       {/* Market Status Row */}
@@ -25,41 +41,37 @@ const MainContent = () => {
         ))}
       </div>
 
-      {/* Recommended Section Placeholder */}
-      <div className="mb-10">
-        <h2 className="text-xl font-extrabold text-slate-800 mb-6">Recommended</h2>
-        <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden">
-          <StockCard symbol="AAPL" name="Apple Inc." price="$ 249.43" change="0.05%" isUp={true} />
-          <StockCard symbol="COST" name="Costco Whol..." price="$ 977.80" change="0%" isUp={false} isNeutral={true} />
-          <StockCard symbol="SCHM" name="Schwab U.S..." price="$ 31.14" change="0.51%" isUp={true} />
-          <StockCard symbol="SCBK" name="Standard Ch..." price="KES 332.5" change="1.48%" isUp={false} />
-          <StockCard symbol="AMZN" name="Amazon.com" price="$ 209.64" change="0.25%" isUp={true} />
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
         </div>
-      </div>
-
-      {/* Popular Stocks Section Placeholder */}
-      <div className="mb-10">
-        <h2 className="text-xl font-extrabold text-slate-800 mb-6">Popular Stocks</h2>
-        <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden">
-          <StockCard symbol="MSFT" name="Microsoft C..." price="$ 391.35" change="0.01%" isUp={true} />
-          <StockCard symbol="AMD" name="Advanced Mi..." price="$ 198.66" change="0.17%" isUp={true} />
-          <StockCard symbol="OXY" name="Occidental ..." price="$ 58.23" change="0.03%" isUp={true} />
-          <StockCard symbol="EQTY" name="Equity Grou..." price="KES 79.0" change="1.28%" isUp={true} />
-          <StockCard symbol="AAPL" name="Apple Inc." price="$ 249.43" change="0.05%" isUp={true} />
+      ) : (
+        <div className="mb-10">
+          <h2 className="text-xl font-extrabold text-slate-800 mb-6">Available Stocks</h2>
+          {companies.length > 0 ? (
+              <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden">
+                {companies.map((company) => {
+                    const rwfPrice = `RWF ${Number(company.currentPrice ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+                    return (
+                      <StockCard 
+                        key={company.id} 
+                        symbol={company.tickerSymbol} 
+                        name={company.companyName} 
+                        price={rwfPrice} 
+                        change="0.00%" 
+                        isUp={true} 
+                        isNeutral={true} 
+                      />
+                    );
+                })}
+              </div>
+          ) : (
+              <div className="text-slate-500 bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center font-medium">
+                  No stocks available in the database.
+              </div>
+          )}
         </div>
-      </div>
-
-      {/* Popular ETFs Section */}
-      <div className="mb-10">
-        <h2 className="text-xl font-extrabold text-slate-800 mb-6">Popular ETFs</h2>
-        <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden">
-          <StockCard symbol="VTWO" name="Vanguard Sc..." price="$ 99.28" change="0.02%" isUp={false} />
-          <StockCard symbol="VOO" name="Vanguard S&..." price="$ 607.06" change="0.01%" isUp={true} />
-          <StockCard symbol="SCHE" name="Schwab Emer..." price="$ 32.97" change="1.11%" isUp={true} />
-          <StockCard symbol="DIA" name="SPDR Dow Jo..." price="$ 461.75" change="0.01%" isUp={true} />
-          <StockCard symbol="VUG" name="Vanguard Gr..." price="$ 449.39" change="0.30%" isUp={true} />
-        </div>
-      </div>
+      )}
       
     </div>
   );

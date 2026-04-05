@@ -3,7 +3,7 @@ spring:
     name: stockconnect
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/StockConnectDb
+    url: jdbc:postgresql://localhost:5432/StockConnectDb?stringtype=unspecified
     username: edison
     password: 'Admin@123'
     driver-class-name: org.postgresql.Driver
