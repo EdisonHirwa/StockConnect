@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff, Wallet as WalletIcon, Upload, Download, ArrowUpDown, RefreshCw } from 'lucide-react';
 import { fetchWallet, fetchTransactions, depositFunds, withdrawFunds } from '../../services/walletService';
 
-const USD_TO_RWF = 1400;
 const fmtRWF = (v) => `RWF ${Number(v ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-const fmtUSD = (v) => `$${(Number(v ?? 0) / USD_TO_RWF).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const fmtDate = (dt) =>
   dt ? new Date(dt).toLocaleDateString('en-KE', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
@@ -20,12 +18,11 @@ const TYPE_BADGE = {
 
 // ── Amount Modal ──────────────────────────────────────────────────────────────
 
-const AmountModal = ({ title, buttonLabel, buttonColor, onConfirm, onClose, loading, error, allowCurrency = false }) => {
-  const [amount,   setAmount]   = useState('');
-  const [currency, setCurrency] = useState('RWF');
+const AmountModal = ({ title, buttonLabel, buttonColor, onConfirm, onClose, loading, error }) => {
+  const [amount, setAmount] = useState('');
 
-  const rwfAmount = currency === 'USD' ? Number(amount) * USD_TO_RWF : Number(amount);
-  const valid     = amount && rwfAmount > 0;
+  const numericAmount = Number(amount);
+  const valid = amount && numericAmount > 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -39,37 +36,14 @@ const AmountModal = ({ title, buttonLabel, buttonColor, onConfirm, onClose, load
           </div>
         )}
 
-        {/* Currency selector — only shown for deposits */}
-        {allowCurrency && (
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Currency</label>
-            <div className="flex gap-3">
-              {['RWF', 'USD'].map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCurrency(c)}
-                  className={`flex-1 py-2.5 rounded-xl border text-sm font-bold transition-all ${
-                    currency === c
-                      ? 'bg-[#fad059] border-[#fad059] text-slate-900 shadow-sm'
-                      : 'border-slate-200 text-slate-500 hover:border-slate-300'
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Amount input */}
         <div>
           <label className="block text-sm font-bold text-slate-700 mb-2">
-            Amount ({currency === 'USD' && allowCurrency ? 'USD' : 'RWF'})
+            Amount (RWF)
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
-              {allowCurrency && currency === 'USD' ? '$' : 'RWF'}
+              RWF
             </span>
             <input
               type="number"
@@ -82,13 +56,6 @@ const AmountModal = ({ title, buttonLabel, buttonColor, onConfirm, onClose, load
           </div>
         </div>
 
-        {/* Conversion preview */}
-        {allowCurrency && currency === 'USD' && amount && rwfAmount > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800 font-medium">
-            ≈ <span className="font-extrabold">RWF {rwfAmount.toLocaleString()}</span> at 1 USD = {USD_TO_RWF.toLocaleString()} RWF
-          </div>
-        )}
-
         <div className="flex gap-3">
           <button
             onClick={onClose}
@@ -98,7 +65,7 @@ const AmountModal = ({ title, buttonLabel, buttonColor, onConfirm, onClose, load
           </button>
           <button
             disabled={loading || !valid}
-            onClick={() => onConfirm(rwfAmount)}
+            onClick={() => onConfirm(numericAmount)}
             className={`flex-1 py-3 rounded-xl text-white font-bold transition-colors shadow-sm disabled:opacity-50 ${buttonColor}`}
           >
             {loading ? 'Processing…' : buttonLabel}
@@ -227,10 +194,7 @@ const Wallet = () => {
           <div className="mb-0.5 text-slate-900 font-extrabold text-2xl">
             {loading ? '—' : hideBalance ? '••••••' : fmtRWF(wallet?.balance)}
           </div>
-          <div className="text-sm text-slate-400 font-semibold mb-2">
-            {loading || hideBalance ? '' : '≈ ' + fmtUSD(wallet?.balance)}
-          </div>
-          <div className="text-xs text-slate-400 font-medium">
+          <div className="text-xs text-slate-400 font-medium mt-3">
             Last updated: {fmtDate(wallet?.updatedAt)}
           </div>
         </div>
@@ -244,10 +208,7 @@ const Wallet = () => {
           <div className="mb-0.5 text-slate-900 font-extrabold text-2xl">
             {loading ? '—' : hideBalance ? '••••••' : fmtRWF(available)}
           </div>
-          <div className="text-sm text-slate-400 font-semibold mb-2">
-            {loading || hideBalance ? '' : '≈ ' + fmtUSD(available)}
-          </div>
-          <div className="text-xs text-slate-400 font-medium">Unlocked funds</div>
+          <div className="text-xs text-slate-400 font-medium mt-3">Unlocked funds</div>
         </div>
 
         {/* Locked Balance */}
@@ -259,10 +220,7 @@ const Wallet = () => {
           <div className="mb-0.5 text-slate-900 font-extrabold text-2xl">
             {loading ? '—' : hideBalance ? '••••••' : fmtRWF(wallet?.lockedBalance)}
           </div>
-          <div className="text-sm text-slate-400 font-semibold mb-2">
-            {loading || hideBalance ? '' : '≈ ' + fmtUSD(wallet?.lockedBalance)}
-          </div>
-          <div className="text-xs text-slate-400 font-medium">Reserved for open orders</div>
+          <div className="text-xs text-slate-400 font-medium mt-3">Reserved for open orders</div>
         </div>
       </div>
 
@@ -325,9 +283,6 @@ const Wallet = () => {
                           <div className={isCredit ? 'text-emerald-600' : 'text-red-600'}>
                             {isCredit ? '+' : ''}{fmtRWF(Math.abs(tx.amount))}
                           </div>
-                          <div className="text-xs text-slate-400 font-medium">
-                            {isCredit ? '+' : ''}{fmtUSD(Math.abs(tx.amount))}
-                          </div>
                         </td>
                         <td className="px-6 py-4 text-right text-slate-400 font-medium">{fmtDate(tx.createdAt)}</td>
                       </tr>
@@ -371,7 +326,6 @@ const Wallet = () => {
           onClose={() => setModal(null)}
           loading={modalLoad}
           error={modalErr}
-          allowCurrency
         />
       )}
       {modal === 'withdraw' && (

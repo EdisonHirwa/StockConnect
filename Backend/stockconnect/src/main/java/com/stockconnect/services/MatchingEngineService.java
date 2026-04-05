@@ -102,6 +102,6 @@ public class MatchingEngineService {
         // 4. Process Seller Side: They have locked portfolio shares
         // Deduct locked shares and credit their wallet
         portfolioService.deductLockedShares(sellOrder.getUser().getId(), company.getId(), quantity);
-        walletLedgerService.deposit(sellOrder.getUser().getId(), totalTradeValue, "Sold " + quantity + " shares of " + company.getTickerSymbol(), trade.getId());
+        walletLedgerService.addTradeProceeds(sellOrder.getUser().getId(), totalTradeValue, "Sold " + quantity + " shares of " + company.getTickerSymbol(), trade.getId());
     }
 }

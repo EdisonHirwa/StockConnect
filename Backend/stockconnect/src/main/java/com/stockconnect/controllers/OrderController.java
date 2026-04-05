@@ -1,5 +1,6 @@
 package com.stockconnect.controllers;
 
+import com.stockconnect.dto.OrderDTO;
 import com.stockconnect.models.Order;
 import com.stockconnect.models.OrderType;
 import com.stockconnect.models.User;
@@ -21,23 +22,27 @@ public class OrderController {
     private OrderManagementService orderManagementService;
 
     @GetMapping
-    public ResponseEntity<List<Order>> getMyOrders(Authentication authentication) {
+    public ResponseEntity<List<OrderDTO>> getMyOrders(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(orderManagementService.getUserOrders(user.getId()));
+        List<OrderDTO> orders = orderManagementService.getUserOrders(user.getId())
+                .stream()
+                .map(OrderDTO::from)
+                .toList();
+        return ResponseEntity.ok(orders);
     }
 
     @PostMapping("/buy")
-    public ResponseEntity<Order> placeBuyOrder(@RequestBody OrderRequest request, Authentication authentication) {
+    public ResponseEntity<OrderDTO> placeBuyOrder(@RequestBody OrderRequest request, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Order order = orderManagementService.placeBuyOrder(user.getId(), request.companyId(), request.quantity(), request.targetPrice(), request.type());
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(OrderDTO.from(order));
     }
 
     @PostMapping("/sell")
-    public ResponseEntity<Order> placeSellOrder(@RequestBody OrderRequest request, Authentication authentication) {
+    public ResponseEntity<OrderDTO> placeSellOrder(@RequestBody OrderRequest request, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Order order = orderManagementService.placeSellOrder(user.getId(), request.companyId(), request.quantity(), request.targetPrice(), request.type());
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(OrderDTO.from(order));
     }
 
     @DeleteMapping("/{id}")

@@ -52,6 +52,19 @@ public class WalletLedgerService {
     }
 
     @Transactional
+    public Wallet addTradeProceeds(UUID userId, BigDecimal amount, String description, UUID referenceId) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Trade proceeds amount must be greater than zero");
+        }
+        Wallet wallet = getWalletByUserId(userId);
+        wallet.setBalance(wallet.getBalance().add(amount));
+        Wallet savedWallet = walletRepository.save(wallet);
+
+        createLedger(savedWallet, TransactionType.TRADE_SELL, amount, referenceId, description);
+        return savedWallet;
+    }
+
+    @Transactional
     public Wallet withdraw(UUID userId, BigDecimal amount, String description, UUID referenceId) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Withdrawal amount must be greater than zero");
