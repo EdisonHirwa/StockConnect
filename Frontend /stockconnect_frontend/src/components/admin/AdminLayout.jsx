@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, ClipboardList, ShieldCheck } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 import { useAuth } from '../../context/AuthContext';
 import LogoutModal from '../shared/LogoutModal';
@@ -9,6 +9,7 @@ import HeaderBar from '../shared/HeaderBar';
 const adminNavItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
   { name: 'Users Management', icon: Users, path: '/admin/users' },
+  { name: 'Audit Logs', icon: ClipboardList, path: '/admin/logs' },
   { name: 'System Settings', icon: Settings, path: '/admin/settings' },
 ];
 
@@ -21,13 +22,16 @@ const AdminLayout = () => {
     logout();
     navigate('/login');
   };
+
   return (
-    <div className="flex h-screen bg-[#f4f7f6] font-sans">
+    <div className="flex h-screen bg-[#f4f7f6] font-sans overflow-hidden">
       {/* Sidebar */}
-      <div className="w-[260px] h-full bg-slate-900 text-slate-300 flex flex-col justify-between p-6 shrink-0 transition-all duration-300">
+      <div className="w-[260px] h-full bg-[#1a1c1e] text-slate-300 flex flex-col justify-between p-6 shrink-0 z-50 transition-all duration-300">
         <div>
           <div className="flex items-center gap-3 px-2 mb-10 text-white cursor-pointer group">
-            <img src={logo} alt="StockConnect Logo" className="h-10 w-auto rounded-xl group-hover:scale-105 transition-transform duration-300" />
+            <div className="w-10 h-10 bg-[#fad059]/10 rounded-xl flex items-center justify-center border border-[#fad059]/20">
+              <ShieldCheck className="text-[#fad059]" size={24} />
+            </div>
             <span className="text-2xl font-bold tracking-tight text-[#fad059]">Admin</span>
           </div>
 
@@ -36,14 +40,14 @@ const AdminLayout = () => {
               <NavLink
                 key={item.name}
                 to={item.path}
-                className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium group ${isActive
-                  ? 'bg-[#fad059] text-slate-900 font-bold shadow-sm'
-                  : 'hover:bg-slate-800 hover:text-white text-slate-400'
+                className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 font-bold text-sm group ${isActive
+                  ? 'bg-[#fad059] text-slate-900 shadow-[0_4px_20px_rgba(250,208,89,0.25)]'
+                  : 'hover:bg-slate-800 hover:text-white text-slate-500'
                   }`}
               >
                 {({ isActive }) => (
                   <>
-                    <item.icon size={20} className={isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-[#fad059] transition-colors'} />
+                    <item.icon size={18} className={isActive ? 'text-slate-900' : 'text-slate-500 group-hover:text-[#fad059] transition-colors'} />
                     <span>{item.name}</span>
                   </>
                 )}
@@ -54,10 +58,10 @@ const AdminLayout = () => {
 
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 mt-auto w-full"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 mt-auto w-full font-bold text-sm"
         >
-          <LogOut size={20} />
-          <span className="font-medium">Logout Admin</span>
+          <LogOut size={18} />
+          <span>Logout Admin</span>
         </button>
 
         {showModal && (
