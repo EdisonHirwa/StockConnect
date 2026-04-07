@@ -16,6 +16,10 @@ import MarketAdminLayout from './components/marketAdmin/MarketAdminLayout';
 import CompanyManagement from './pages/marketAdmin/CompanyManagement';
 import MarketOverview from './pages/marketAdmin/MarketOverview';
 import MarketAnalytics from './pages/marketAdmin/MarketAnalytics';
+import MarketLeaderboard from './pages/marketAdmin/MarketLeaderboard';
+import OrderBook from './pages/marketAdmin/OrderBook';
+import TradeHistory from './pages/marketAdmin/TradeHistory';
+import SessionControl from './pages/marketAdmin/SessionControl';
 import './App.css';
 
 function App() {
@@ -46,10 +50,14 @@ function App() {
 
         {/* Market Admin Routes */}
         <Route path="/market-admin" element={<MarketAdminLayout />}>
-          <Route index element={<Navigate to="/market-admin/companies" replace />} />
+          <Route index element={<Navigate to="/market-admin/dashboard" replace />} />
           <Route path="dashboard" element={<MarketOverview />} />
           <Route path="companies" element={<CompanyManagement />} />
           <Route path="analytics" element={<MarketAnalytics />} />
+          <Route path="order-book" element={<OrderBook />} />
+          <Route path="trades" element={<TradeHistory />} />
+          <Route path="session-control" element={<SessionControl />} />
+          <Route path="leaderboard" element={<MarketLeaderboard />} />
         </Route>
       </Routes>
     </BrowserRouter>
