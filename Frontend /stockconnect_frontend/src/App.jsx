@@ -12,6 +12,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import SystemSettings from './pages/admin/SystemSettings';
+import AuditLogs from './pages/admin/AuditLogs';
 import MarketAdminLayout from './components/marketAdmin/MarketAdminLayout';
 import CompanyManagement from './pages/marketAdmin/CompanyManagement';
 import MarketOverview from './pages/marketAdmin/MarketOverview';
@@ -46,6 +47,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="settings" element={<SystemSettings />} />
+          <Route path="logs" element={<AuditLogs />} />
         </Route>
 
         {/* Market Admin Routes */}

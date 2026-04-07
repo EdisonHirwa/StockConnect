@@ -101,18 +101,8 @@ const MarketAdminLayout = () => {
             </div>
           </div>
           
-          {/* User Profile Hook from screenshot */}
+          {/* Sign Out Button */}
           <div className="mt-auto pt-6 border-t border-slate-800/50">
-            <div className="bg-slate-800/40 p-4 rounded-2xl flex items-center gap-4 hover:bg-slate-800/60 transition-colors cursor-pointer group mb-4">
-              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-xs border border-emerald-500/20">
-                JN
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <p className="text-xs font-black text-white truncate">J. Ndayisenga</p>
-                <p className="text-[10px] font-bold text-slate-500 truncate">Market Admin • RP Karongi</p>
-              </div>
-            </div>
-
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 w-full font-bold text-sm"
