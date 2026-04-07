@@ -1,16 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Building2, TrendingUp, LogOut } from 'lucide-react';
+import { LayoutDashboard, Building2, TrendingUp, BookOpen, Repeat, PlayCircle, Trophy, LogOut, ChevronRight } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 import { useAuth } from '../../context/AuthContext';
 import LogoutModal from '../shared/LogoutModal';
 import HeaderBar from '../shared/HeaderBar';
-
-const marketAdminNavItems = [
-  { name: 'Overview', icon: LayoutDashboard, path: '/market-admin/dashboard' },
-  { name: 'Companies', icon: Building2, path: '/market-admin/companies' },
-  { name: 'Analytics', icon: TrendingUp, path: '/market-admin/analytics' },
-];
 
 const MarketAdminLayout = () => {
   const { logout } = useAuth();
@@ -21,47 +15,113 @@ const MarketAdminLayout = () => {
     logout();
     navigate('/login');
   };
+
+  const marketSection = [
+    { name: 'Market Dashboard', icon: LayoutDashboard, path: '/market-admin/dashboard' },
+    { name: 'Companies', icon: Building2, path: '/market-admin/companies' },
+    { name: 'Order Book', icon: BookOpen, path: '/market-admin/order-book', badge: 12 },
+    { name: 'Trades', icon: Repeat, path: '/market-admin/trades' },
+  ];
+
+  const sessionSection = [
+    { name: 'Session Control', icon: PlayCircle, path: '/market-admin/session-control' },
+    { name: 'Leaderboard', icon: Trophy, path: '/market-admin/leaderboard' },
+  ];
+
   return (
-    <div className="flex h-screen bg-[#f4f7f6] font-sans">
+    <div className="flex h-screen bg-[#f1f5f9] font-sans">
       {/* Sidebar */}
-      <div className="w-[260px] h-full bg-slate-900 text-slate-300 flex flex-col justify-between p-6 shrink-0 transition-all duration-300">
-        <div>
-          <div className="flex items-center gap-3 px-2 mb-10 text-white cursor-pointer group">
-            <img src={logo} alt="StockConnect Logo" className="h-10 w-auto rounded-xl group-hover:scale-105 transition-transform duration-300" />
+      <div className="w-[280px] h-full bg-slate-900 text-slate-300 flex flex-col p-6 shrink-0 transition-all duration-300">
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center gap-3 px-2 mb-8 text-white">
+            <img src={logo} alt="Logo" className="h-10 w-auto rounded-xl shadow-lg border border-slate-700" />
             <div>
-                <p className="text-xl font-bold tracking-tight text-[#fad059] leading-tight">StockConnect</p>
-                <p className="text-xs font-bold text-slate-400">MARKET ADMIN</p>
+                <p className="text-xl font-extrabold tracking-tight text-[#fad059] leading-tight flex items-center gap-1.5">
+                  StockConnect
+                </p>
+                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500">Market Admin</p>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            {/* Market Section */}
+            <div className="mb-8">
+              <p className="px-4 text-[11px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4">Market</p>
+              <nav className="flex flex-col gap-1.5">
+                {marketSection.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.path}
+                    className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl cursor-default transition-all duration-300 font-bold group ${isActive 
+                      ? 'bg-[#fad059] text-slate-900 shadow-[0_4px_20px_-4px_rgba(250,208,89,0.3)]' 
+                      : 'hover:bg-slate-800/80 hover:text-white text-slate-400'
+                    }`}
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <item.icon size={18} className={isActive ? 'text-slate-900' : 'text-slate-500 group-hover:text-[#fad059] transition-colors'} />
+                          <span className="text-sm font-bold tracking-tight">{item.name}</span>
+                        </div>
+                        {item.badge && (
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${isActive ? 'bg-slate-900/10' : 'bg-red-500/20 text-red-400'}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </nav>
+            </div>
+
+            {/* Session Section */}
+            <div>
+              <p className="px-4 text-[11px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4">Session</p>
+              <nav className="flex flex-col gap-1.5">
+                {sessionSection.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.path}
+                    className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl cursor-default transition-all duration-300 font-bold group ${isActive 
+                      ? 'bg-[#fad059] text-slate-900 shadow-[0_4px_20px_-4px_rgba(250,208,89,0.3)]' 
+                      : 'hover:bg-slate-800/80 hover:text-white text-slate-400'
+                    }`}
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <item.icon size={18} className={isActive ? 'text-slate-900' : 'text-slate-500 group-hover:text-[#fad059] transition-colors'} />
+                        <span className="text-sm font-bold tracking-tight">{item.name}</span>
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </nav>
             </div>
           </div>
           
-          <nav className="flex flex-col gap-2">
-            {marketAdminNavItems.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 font-medium group ${isActive 
-                  ? 'bg-[#fad059] text-slate-900 font-bold shadow-sm' 
-                  : 'hover:bg-slate-800 hover:text-white text-slate-400'
-                }`}
-              >
-                {({ isActive }) => (
-                  <>
-                    <item.icon size={20} className={isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-[#fad059] transition-colors'} />
-                    <span>{item.name}</span>
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
+          {/* User Profile Hook from screenshot */}
+          <div className="mt-auto pt-6 border-t border-slate-800/50">
+            <div className="bg-slate-800/40 p-4 rounded-2xl flex items-center gap-4 hover:bg-slate-800/60 transition-colors cursor-pointer group mb-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-xs border border-emerald-500/20">
+                JN
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-xs font-black text-white truncate">J. Ndayisenga</p>
+                <p className="text-[10px] font-bold text-slate-500 truncate">Market Admin • RP Karongi</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 w-full font-bold text-sm"
+            >
+              <LogOut size={18} />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
-        
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 mt-auto w-full"
-        >
-          <LogOut size={20} />
-          <span className="font-medium">Sign Out</span>
-        </button>
 
         {showModal && (
           <LogoutModal

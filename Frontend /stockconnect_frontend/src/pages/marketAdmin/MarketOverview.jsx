@@ -1,130 +1,156 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Activity, Globe, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, BookOpen, Repeat, BarChart3, ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: '10 AM', cap: 42.1 },
-  { name: '11 AM', cap: 42.3 },
-  { name: '12 PM', cap: 41.8 },
-  { name: '1 PM', cap: 42.5 },
-  { name: '2 PM', cap: 42.6 },
-  { name: '3 PM', cap: 42.8 },
-  { name: '4 PM', cap: 43.1 },
-];
-
-const topMovers = [
-  { symbol: 'NVDA', name: 'NVIDIA Corp', price: '$420.50', change: '+5.2%', isUp: true },
-  { symbol: 'AMD', name: 'Advanced Micro', price: '$110.20', change: '+3.8%', isUp: true },
-  { symbol: 'TSLA', name: 'Tesla Inc.', price: '$210.80', change: '-2.1%', isUp: false },
-  { symbol: 'META', name: 'Meta Platforms', price: '$295.40', change: '+1.9%', isUp: true },
-];
-
 const MarketOverview = () => {
-  return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Market Overview</h1>
-          <p className="text-slate-500 mt-1 font-medium">Live market performance and global indexes.</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-100 px-4 py-2.5 rounded-xl border border-emerald-200">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse mt-0.5"></div>
-          MARKET OPEN
-        </div>
-      </div>
+    const kpiData = [
+        { label: 'Active Traders', value: '187', subValue: 'of 342 registered', color: 'text-emerald-400', icon: Users },
+        { label: 'Orders today', value: '412', subValue: '+38 last hour', color: 'text-amber-400', icon: BookOpen },
+        { label: 'Trades executed', value: '128', subValue: '82% fill rate', color: 'text-blue-400', icon: Repeat },
+        { label: 'Volume (RWF)', value: '48.2M', subValue: '+12% vs yesterday', color: 'text-indigo-400', icon: BarChart3 },
+    ];
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { title: 'Global Market Cap', value: '$43.1T', change: '+1.2%', isUp: true, icon: Globe, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-          { title: '24h Volume', value: '$124.5B', change: '+5.4%', isUp: true, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-50' },
-          { title: 'Avg Volatility', value: '1.8%', change: '-0.3%', isUp: false, icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50' },
-          { title: 'Listed Entities', value: '4,192', change: '+12', isUp: true, icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
-                <stat.icon size={24} />
-              </div>
-              <span className={`flex items-center text-sm font-bold ${stat.isUp ? 'text-emerald-500' : 'text-red-500'}`}>
-                {stat.isUp ? <ArrowUpRight size={16} className="mr-1" /> : <ArrowDownRight size={16} className="mr-1" />}
-                {stat.change}
-              </span>
-            </div>
-            <div>
-              <p className="text-slate-500 text-sm font-medium mb-1">{stat.title}</p>
-              <h3 className="text-3xl font-extrabold text-slate-900">{stat.value}</h3>
-            </div>
-          </div>
-        ))}
-      </div>
+    const marketWatch = [
+        { symbol: 'BK', name: 'Bank of Kigali', price: '278.00', change: '+1.8%', isUp: true },
+        { symbol: 'MTN', name: 'MTN Rwanda', price: '91.50', change: '-0.5%', isUp: false },
+        { symbol: 'BRL', name: 'Bralirwa', price: '142.00', change: '+0.7%', isUp: true },
+        { symbol: 'KCB', name: 'KCB Group', price: '314.00', change: '0.0%', isUp: null },
+        { symbol: 'IMR', name: 'I&M Rwanda', price: '57.00', change: '+2.1%', isUp: true },
+    ];
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm">
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h3 className="text-xl font-bold text-slate-900">Total Market Capitalization</h3>
-              <p className="text-slate-500 text-sm font-medium">Intraday performance (Trillions USD)</p>
-            </div>
-            <select className="bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-[#fad059]/50 transition-all">
-              <option>Today</option>
-              <option>1W</option>
-              <option>1M</option>
-              <option>YTD</option>
-            </select>
-          </div>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorCap" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                <YAxis domain={['dataMin - 1', 'dataMax + 1']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} prefix="$" suffix="T" />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                  itemStyle={{ color: '#0f172a', fontWeight: 'bold' }}
-                />
-                <Area type="monotone" dataKey="cap" stroke="#4f46e5" strokeWidth={4} fillOpacity={1} fill="url(#colorCap)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+    const orderBook = {
+        symbol: 'BK',
+        bids: [
+            { price: '278.00', qty: '4,200' },
+            { price: '277.50', qty: '3,000' },
+            { price: '277.00', qty: '2,100' },
+            { price: '276.50', qty: '800' },
+        ],
+        asks: [
+            { price: '278.50', qty: '3,500' },
+            { price: '279.00', qty: '2,200' },
+            { price: '279.50', qty: '1,800' },
+            { price: '280.00', qty: '600' },
+        ],
+        spread: '0.50'
+    };
 
-        {/* Top Movers */}
-        <div className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col">
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-slate-900">Top Movers</h3>
-            <p className="text-slate-500 text-sm font-medium">Highest volume & volatility</p>
-          </div>
-          <div className="flex-1 flex flex-col gap-3">
-            {topMovers.map((stock, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors bg-slate-50/50 hover:bg-slate-50">
-                <div>
-                  <h4 className="font-bold text-slate-900">{stock.symbol}</h4>
-                  <p className="text-xs text-slate-500 font-medium">{stock.name}</p>
+    return (
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans">
+            {/* KPI Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {kpiData.map((kpi, i) => (
+                    <div key={i} className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-all group">
+                        <div className="flex justify-between items-start mb-6">
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{kpi.label}</p>
+                            <kpi.icon size={20} className={`${kpi.color} opacity-40 group-hover:opacity-100 transition-opacity`} />
+                        </div>
+                        <h3 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">{kpi.value}</h3>
+                        <p className={`text-xs font-bold ${i === 1 || i === 3 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                            {kpi.subValue}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Market Watch */}
+                <div className="lg:col-span-2 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden">
+                    <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+                        <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
+                            Market watch
+                        </h3>
+                        <button className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-[#fad059] font-black text-sm rounded-xl transition-all shadow-lg active:scale-95">
+                            Manage
+                        </button>
+                    </div>
+                    <div className="p-4">
+                        <div className="space-y-1">
+                            {marketWatch.map((stock, i) => (
+                                <div key={i} className="flex items-center justify-between p-6 rounded-2xl hover:bg-slate-50 transition-all group cursor-pointer">
+                                    <div>
+                                        <h4 className="text-lg font-black text-slate-900 tracking-tight">{stock.symbol}</h4>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{stock.name}</p>
+                                    </div>
+                                    <div className="text-right flex items-center gap-10">
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900">
+                                                <span className={`${stock.isUp === true ? 'text-emerald-600' : stock.isUp === false ? 'text-rose-600' : 'text-slate-600'}`}>
+                                                    RWF {stock.price}
+                                                </span>
+                                                <span className={`ml-2 text-xs font-bold ${stock.isUp === true ? 'text-emerald-500' : stock.isUp === false ? 'text-rose-500' : 'text-slate-400'}`}>
+                                                    {stock.change}
+                                                </span>
+                                            </p>
+                                            <div className="mt-2 h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
+                                                <div 
+                                                    className={`h-full rounded-full transition-all duration-1000 ${stock.isUp === true ? 'bg-emerald-500' : stock.isUp === false ? 'bg-rose-500' : 'bg-slate-400'}`}
+                                                    style={{ width: stock.isUp === null ? '40%' : stock.isUp ? '75%' : '25%' }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                        <MoreHorizontal size={18} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-slate-900">{stock.price}</p>
-                  <p className={`text-xs font-bold flex items-center justify-end ${stock.isUp ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {stock.change} {stock.isUp ? <ArrowUpRight size={14}/> : <ArrowDownRight size={14}/>}
-                  </p>
+
+                {/* Live Order Book */}
+                <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col">
+                    <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                            Order book — <span className="text-[#fad059]">{orderBook.symbol}</span>
+                        </h3>
+                        <span className="text-[10px] font-black text-emerald-600 animate-pulse bg-emerald-100 px-2 py-1 rounded-lg border border-emerald-200 tracking-widest">LIVE</span>
+                    </div>
+                    
+                    <div className="p-8 flex-1">
+                        <div className="grid grid-cols-2 gap-8 mb-6">
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-4 text-center">BID (Buy)</p>
+                                <div className="space-y-4">
+                                    {orderBook.bids.map((bid, i) => (
+                                        <div key={i} className="flex justify-between items-center group">
+                                            <span className="text-emerald-600 font-black text-sm">{bid.price}</span>
+                                            <span className="text-slate-400 font-bold text-xs group-hover:text-slate-900 transition-colors">{bid.qty}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="border-l border-slate-50 pl-8">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-4 text-center">ASK (Sell)</p>
+                                <div className="space-y-4">
+                                    {orderBook.asks.map((ask, i) => (
+                                        <div key={i} className="flex justify-between items-center group">
+                                            <span className="text-rose-600 font-black text-sm">{ask.price}</span>
+                                            <span className="text-slate-400 font-bold text-xs group-hover:text-slate-900 transition-colors">{ask.qty}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 pt-8 border-t border-slate-50 flex flex-col items-center">
+                            <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Market Spread</p>
+                            <div className="px-6 py-2 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span className="text-sm font-bold text-slate-400 uppercase mr-2 opacity-60 tracking-tighter">RWF</span>
+                                <span className="text-xl font-black text-slate-900">{orderBook.spread}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-6 bg-slate-50 border-t border-slate-100">
+                         <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <span>Last update: Just now</span>
+                            <span>Depth: 20 levels</span>
+                         </div>
+                    </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <button className="w-full mt-5 py-3.5 text-sm font-bold text-[#fad059] hover:text-[#e8be48] transition-colors rounded-xl bg-slate-900 hover:bg-slate-800 shadow-sm">
-            View All Equities
-          </button>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default MarketOverview;
