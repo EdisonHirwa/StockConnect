@@ -18,4 +18,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     // For Matching Engine: Find active BUY orders, sorted by highest price first, then oldest first
     List<Order> findByCompanyIdAndSideAndStatusOrderByTargetPriceDescCreatedAtAsc(UUID companyId, OrderSide side, OrderStatus status);
+
+    List<Order> findAllByOrderByCreatedAtDesc();
 }
