@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSearch } from '../../context/SearchContext';
 
 const logs = [
   { timestamp: '2025-04-07 09:14:02', admin: 'admin@system', action: 'TENANT_CREATE', target: 'CMA Training', ip: '192.168.1.4', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
@@ -9,6 +10,14 @@ const logs = [
 ];
 
 const AuditLogs = () => {
+    const { searchTerm } = useSearch();
+    
+    const filteredLogs = logs.filter(log => 
+        log.admin.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        log.action.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        log.target.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
             <div>
@@ -35,7 +44,7 @@ const AuditLogs = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {logs.map((log, i) => (
+                            {filteredLogs.map((log, i) => (
                                 <tr key={i} className="hover:bg-slate-50 transition-colors group">
                                     <td className="px-8 py-6 text-sm font-black text-slate-400 font-mono">{log.timestamp}</td>
                                     <td className="px-8 py-6 text-sm font-black text-slate-900">{log.admin}</td>

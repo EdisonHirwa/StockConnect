@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { Search, Filter, MoreVertical, CheckCircle2, XCircle, AlertCircle, Edit2, Trash2 } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 
 // Mock Data
 const initialUsers = [
@@ -14,12 +14,12 @@ const initialUsers = [
 
 const UserManagement = () => {
   const [users, setUsers] = useState(initialUsers);
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm, setSearchTerm } = useSearch();
   const [activeTab, setActiveTab] = useState('All');
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                          (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesTab = activeTab === 'All' || user.status === activeTab;
     return matchesSearch && matchesTab;
   });

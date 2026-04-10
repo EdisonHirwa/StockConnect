@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { RefreshCw, Download } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 import { marketAdminService } from '../../services/marketAdminService';
 
 const TradeHistory = () => {
     const [trades, setTrades] = useState([]);
+    const { searchTerm } = useSearch();
     const [loading, setLoading] = useState(true);
 
     const loadTrades = async () => {
@@ -24,6 +26,13 @@ const TradeHistory = () => {
 
     const fmtDate = (dt) => 
         new Date(dt).toLocaleTimeString('en-US', { hour12: false });
+
+    const filteredTrades = (trades || []).filter(t => 
+        (t.tickerSymbol?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+        (t.buyerName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+        (t.sellerName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+        String(t.id || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -63,7 +72,7 @@ const TradeHistory = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50">
-                                    <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Trade ID</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">#</th>
                                     <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Company</th>
                                     <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Buyer</th>
                                     <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Seller</th>
@@ -74,9 +83,9 @@ const TradeHistory = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {trades.map((trade) => (
+                                {filteredTrades.map((trade, index) => (
                                     <tr key={trade.id} className="hover:bg-slate-50 transition-colors group">
-                                        <td className="px-8 py-6 text-sm font-black text-slate-400 font-mono">#{trade.id.substring(0, 8)}</td>
+                                        <td className="px-8 py-6 text-sm font-black text-slate-400 font-mono">{index + 1}</td>
                                         <td className="px-8 py-6 text-sm font-black text-slate-900">{trade.tickerSymbol}</td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2">

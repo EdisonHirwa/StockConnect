@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Users, BookOpen, Repeat, BarChart3, ArrowUpRight, ArrowDownRight, MoreHorizontal, RefreshCw } from 'lucide-react';
 import { marketAdminService } from '../../services/marketAdminService';
+import { useSearch } from '../../context/SearchContext';
 import { companyService } from '../../services/companyService';
 
 const MarketOverview = () => {
     const [stats, setStats] = useState(null);
     const [companies, setCompanies] = useState([]);
+    const { searchTerm } = useSearch();
     const [loading, setLoading] = useState(true);
+    const [session, setSession] = useState(null);
 
     const loadData = async () => {
         setLoading(true);
         try {
-            const [s, c] = await Promise.all([
+            const [s, c, sess] = await Promise.all([
                 marketAdminService.getStats(),
-                companyService.getAllCompanies()
+                companyService.getAllCompanies(),
+                marketAdminService.getSession()
             ]);
             setStats(s);
             setCompanies(c);
+            setSession(sess);
         } catch (error) {
             console.error('Failed to load market overview data', error);
         } finally {
@@ -35,12 +40,17 @@ const MarketOverview = () => {
         { label: 'Volume (RWF)', value: stats?.totalVolumeRWF ? (stats.totalVolumeRWF / 1000000).toFixed(1) + 'M' : '—', subValue: 'Cumulative value', color: 'text-indigo-400', icon: BarChart3 },
     ];
 
+    const filteredCompanies = companies.filter(c => 
+        c.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        c.tickerSymbol.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans">
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Market Overview</h1>
-                    <p className="text-slate-500 font-bold mt-1">Real-time exchange monitoring and auditing</p>
+                    <p className="text-slate-500 font-bold mt-1">Real-time exchange monitoring for {session ? `${session.institutionName}` : 'StockConnect'}</p>
                 </div>
                 <button 
                     onClick={loadData}
@@ -81,7 +91,7 @@ const MarketOverview = () => {
                             <div className="py-20 text-center text-slate-400 font-medium">No companies listed yet.</div>
                         ) : (
                             <div className="space-y-1">
-                                {companies.map((stock, i) => (
+                                {filteredCompanies.map((stock, i) => (
                                     <div key={i} className="flex items-center justify-between p-6 rounded-2xl hover:bg-slate-50 transition-all group cursor-pointer">
                                         <div>
                                             <h4 className="text-lg font-black text-slate-900 tracking-tight">{stock.tickerSymbol}</h4>

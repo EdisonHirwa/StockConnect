@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { companyService } from '../../services/companyService';
+import { useSearch } from '../../context/SearchContext';
 
 const marketStatuses = [
   { name: 'Rwandan Stocks', status: 'Open', flag: '🇷🇼' },
@@ -8,6 +9,7 @@ const marketStatuses = [
 
 const MainContent = () => {
   const [companies, setCompanies] = useState([]);
+  const { searchTerm } = useSearch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +52,10 @@ const MainContent = () => {
           <h2 className="text-xl font-extrabold text-slate-800 mb-6">Available Stocks</h2>
           {companies.length > 0 ? (
               <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden">
-                {companies.map((company) => {
+                {companies.filter(c => 
+                    c.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    c.tickerSymbol.toLowerCase().includes(searchTerm.toLowerCase())
+                ).map((company) => {
                     const rwfPrice = `RWF ${Number(company.currentPrice ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
                     return (
                       <StockCard 
