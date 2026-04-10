@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff, Wallet as WalletIcon, Upload, Download, ArrowUpDown, RefreshCw } from 'lucide-react';
 import { fetchWallet, fetchTransactions, depositFunds, withdrawFunds } from '../../services/walletService';
+import { useSearch } from '../../context/SearchContext';
 
 const fmtRWF = (v) => `RWF ${Number(v ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
@@ -83,6 +84,7 @@ const ITEMS_PER_PAGE = 10;
 
 const Wallet = () => {
   const [wallet, setWallet]         = useState(null);
+  const { searchTerm }              = useSearch();
   const [transactions, setTxns]     = useState([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState('');
@@ -148,8 +150,13 @@ const Wallet = () => {
 
   // ── Pagination ─────────────────────────────────────────────────────────────
 
-  const totalPages   = Math.max(1, Math.ceil(transactions.length / ITEMS_PER_PAGE));
-  const pageTxns     = transactions.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const filteredTxns = transactions.filter(tx => 
+    (tx.description || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    tx.type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages   = Math.max(1, Math.ceil(filteredTxns.length / ITEMS_PER_PAGE));
+  const pageTxns     = filteredTxns.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   const available    = wallet ? Number(wallet.balance) - Number(wallet.lockedBalance) : 0;
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -253,8 +260,10 @@ const Wallet = () => {
 
         {loading ? (
           <div className="flex justify-center py-10 text-slate-400 text-sm font-medium">Loading…</div>
-        ) : transactions.length === 0 ? (
-          <div className="flex justify-center py-10 text-slate-400 text-sm font-medium">No transactions yet</div>
+        ) : filteredTxns.length === 0 ? (
+          <div className="flex justify-center py-10 text-slate-400 text-sm font-medium">
+            {searchTerm ? `No transactions found matching "${searchTerm}"` : 'No transactions yet'}
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm mb-6">

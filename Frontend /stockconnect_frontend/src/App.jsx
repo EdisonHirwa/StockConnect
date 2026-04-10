@@ -21,12 +21,14 @@ import MarketLeaderboard from './pages/marketAdmin/MarketLeaderboard';
 import OrderBook from './pages/marketAdmin/OrderBook';
 import TradeHistory from './pages/marketAdmin/TradeHistory';
 import SessionControl from './pages/marketAdmin/SessionControl';
+import { SearchProvider } from './context/SearchContext';
 import './App.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <SearchProvider>
+      <BrowserRouter>
+        <Routes>
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -62,8 +64,9 @@ function App() {
           <Route path="leaderboard" element={<MarketLeaderboard />} />
         </Route>
       </Routes>
-    </BrowserRouter>
-  )
+      </BrowserRouter>
+    </SearchProvider>
+  );
 }
 
 export default App;
