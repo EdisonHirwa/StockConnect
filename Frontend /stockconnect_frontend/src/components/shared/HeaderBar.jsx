@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Search, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSearch } from '../../context/SearchContext';
 import ProfileModal from '../shared/ProfileModal';
 
 const ROLE_COLORS = {
@@ -24,6 +25,7 @@ const BELL_COLORS = {
  */
 const HeaderBar = ({ searchPlaceholder = 'Search anything ...' }) => {
   const { fullName, role } = useAuth();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [showProfile, setShowProfile] = useState(false);
 
   const initials = fullName
@@ -46,6 +48,8 @@ const HeaderBar = ({ searchPlaceholder = 'Search anything ...' }) => {
             <input
               type="text"
               placeholder={searchPlaceholder}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-transparent border-none outline-none text-sm w-full font-medium text-slate-700 placeholder:text-slate-400"
             />
           </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RefreshCw, TrendingUp, TrendingDown, Briefcase, ShieldCheck, BarChart2, User } from 'lucide-react';
 import { fetchPortfolio } from '../../services/portfolioService';
 import { useAuth } from '../../context/AuthContext';
+import { useSearch } from '../../context/SearchContext';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -93,6 +94,7 @@ const DonutChart = ({ data }) => {
 
 const Portfolio = () => {
   const { role, userId } = useAuth();
+  const { searchTerm } = useSearch();
   const [holdings, setHoldings] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
@@ -112,6 +114,10 @@ const Portfolio = () => {
   useEffect(() => { load(); }, []);
 
   // ── Derived metrics ─────────────────────────────────────────────────────────
+  const filteredHoldings = holdings.filter(h => 
+    h.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    h.tickerSymbol.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const totalValue    = holdings.reduce((s, h) => s + Number(h.totalValue), 0);
   const totalCost     = holdings.reduce((s, h) => s + Number(h.averageBuyPrice) * Number(h.quantity), 0);
   const totalPnl      = totalValue - totalCost;
@@ -228,7 +234,7 @@ const Portfolio = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {holdings.map((h) => {
+                {filteredHoldings.map((h) => {
                   const pnl     = Number(h.unrealizedPnl);
                   const pnlPct  = Number(h.averageBuyPrice) > 0
                     ? ((Number(h.currentPrice) - Number(h.averageBuyPrice)) / Number(h.averageBuyPrice)) * 100

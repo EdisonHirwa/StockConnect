@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Wallet as WalletIcon, Download, Upload, X } from 'lucide-react';
+import { TrendingUp, Wallet as WalletIcon, Download, Upload, X } from 'lucide-react';
 import { companyService } from '../../services/companyService';
 import { fetchPortfolio } from '../../services/portfolioService';
 import { fetchWallet, fetchTransactions } from '../../services/walletService';
 import { orderService } from '../../services/orderService';
 
+import { useSearch } from '../../context/SearchContext';
+
 const primaryTabs = ['Markets', 'Positions', 'Orders', 'Transactions', 'Wallet'];
-const secondaryTabs = ['Stocks', 'Currencies', 'ETFs', 'Metals', 'Energies', 'Indices', 'Agriculture'];
+const secondaryTabs = ['Stocks'];
 
 const fmtRWF = (v) => `RWF ${Number(v ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const fmtDate = (dt) => dt ? new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
@@ -16,6 +18,7 @@ const Trade = () => {
   const [activeSecondary, setActiveSecondary] = useState('Stocks');
 
   const [companies, setCompanies] = useState([]);
+  const { searchTerm } = useSearch();
   const [portfolio, setPortfolio] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -95,6 +98,11 @@ const Trade = () => {
     }
   };
 
+  const filteredCompanies = companies.filter(comp => 
+    comp.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    comp.tickerSymbol.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="p-8 max-w-6xl relative">
       {/* Header */}
@@ -166,7 +174,7 @@ const Trade = () => {
                   <tbody>
                     {loading ? (
                        <tr><td colSpan="3" className="py-12 text-center text-slate-500">Loading...</td></tr>
-                    ) : companies.map((comp) => (
+                    ) : filteredCompanies.map((comp) => (
                       <tr key={comp.id} className="border-t border-slate-100 hover:bg-slate-50/80 transition-colors cursor-pointer group">
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-4">
