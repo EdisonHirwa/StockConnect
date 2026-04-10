@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Building2, TrendingUp, Users, MoreVertical, X, BarChart3, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react';
+import { Search, Plus, Building2, TrendingUp, Users, MoreVertical, X, BarChart2, BarChart3, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 import { companyService } from '../../services/companyService';
 
 const CompanyManagement = () => {
@@ -7,7 +8,7 @@ const CompanyManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm, setSearchTerm } = useSearch();
   const [newCompany, setNewCompany] = useState({
     companyName: '',
     tickerSymbol: '',

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Search, ArrowUp, ArrowDown, RefreshCw } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 import { marketAdminService } from '../../services/marketAdminService';
 
 const OrderBook = () => {
   const [orders, setOrders] = useState([]);
+  const { searchTerm } = useSearch();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
 
@@ -23,14 +25,19 @@ const OrderBook = () => {
     loadOrders();
   }, []);
 
-  const filteredOrders = orders.filter(order => {
-    if (filter === 'All') return true;
-    return order.status === filter.toUpperCase();
+  const filteredOrders = (orders || []).filter(order => {
+    const matchesTab = filter === 'All' || order.status === filter.toUpperCase();
+    const matchesSearch = 
+      (order.tickerSymbol?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+      String(order.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.side?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    
+    return matchesTab && matchesSearch;
   });
 
   const getCount = (status) => {
-    if (status === 'All') return orders.length;
-    return orders.filter(o => o.status === status.toUpperCase()).length;
+    if (status === 'All') return (orders || []).length;
+    return (orders || []).filter(o => o.status === status.toUpperCase()).length;
   };
 
   const tabs = [
@@ -42,7 +49,7 @@ const OrderBook = () => {
   ];
 
   const fmtDate = (dt) => 
-    new Date(dt).toLocaleTimeString('en-US', { hour: false, hour12: false, minute: '2-digit', second: '2-digit' });
+    new Date(dt).toLocaleTimeString('en-US', { hour12: false, minute: '2-digit', second: '2-digit' });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -87,7 +94,7 @@ const OrderBook = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50">
-                  <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Order ID</th>
+                  <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">#</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Company</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Side</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Type</th>
@@ -99,9 +106,9 @@ const OrderBook = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filteredOrders.map((order) => (
+                {filteredOrders.map((order, index) => (
                   <tr key={order.id} className="hover:bg-slate-50 transition-colors group">
-                    <td className="px-8 py-6 text-sm font-black text-slate-400 font-mono">#{order.id.substring(0, 8)}</td>
+                    <td className="px-8 py-6 text-sm font-black text-slate-400 font-mono">{index + 1}</td>
                     <td className="px-8 py-6 text-sm font-black text-slate-900">{order.tickerSymbol}</td>
                     <td className="px-8 py-6">
                       <span className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-widest

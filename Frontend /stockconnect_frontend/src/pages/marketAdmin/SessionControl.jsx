@@ -1,7 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PlayCircle, Clock, Calendar, Save, Zap, HelpCircle } from 'lucide-react';
+import { marketAdminService } from '../../services/marketAdminService';
 
 const SessionControl = () => {
+    const [session, setSession] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const data = await marketAdminService.getSession();
+            setSession(data);
+        } catch (error) {
+            console.error('Failed to load session info', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
             {/* Top Status Bar */}
@@ -9,7 +28,7 @@ const SessionControl = () => {
                 <div>
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Current session</p>
                      <h2 className="text-xl font-black text-slate-900 flex items-center gap-3">
-                        Open · 09:00 – 15:00 CAT · Day 47 of Semester 1
+                        {loading ? 'Fetching...' : `Open · 09:00 – 15:00 CAT · ${session?.institutionName} | ${session?.academicPeriod}`}
                         <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg border border-emerald-200 tracking-widest">LIVE</span>
                      </h2>
                 </div>

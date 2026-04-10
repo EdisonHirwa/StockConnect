@@ -22,6 +22,9 @@ public class Company {
     @Column(name = "total_shares", nullable = false)
     private Long totalShares;
 
+    @Column(nullable = false)
+    private String sector = "Other";
+
     @Column(name = "current_price", nullable = false, precision = 15, scale = 2)
     private BigDecimal currentPrice = BigDecimal.ZERO;
 
@@ -61,4 +64,7 @@ public class Company {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getSector() { return sector; }
+    public void setSector(String sector) { this.sector = sector; }
 }

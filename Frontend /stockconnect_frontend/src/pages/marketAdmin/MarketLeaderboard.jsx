@@ -1,20 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearch } from '../../context/SearchContext';
+import { marketAdminService } from '../../services/marketAdminService';
 
-const traders = [
-  { rank: 1, name: 'Nkurunziza K.', initial: 'NK', starting: '1,000,000', netWorth: '1,384,000', gain: '+38.4%', trades: 89, color: 'bg-amber-500' },
-  { rank: 2, name: 'Alice Mukiza', initial: 'AM', starting: '1,000,000', netWorth: '1,291,000', gain: '+29.1%', trades: 64, color: 'bg-blue-500' },
-  { rank: 3, name: 'P. Umwali', initial: 'PU', starting: '1,000,000', netWorth: '1,218,000', gain: '+21.8%', trades: 47, color: 'bg-emerald-500' },
-  { rank: 4, name: 'Jean Ntare', initial: 'JN', starting: '1,000,000', netWorth: '1,144,000', gain: '+14.4%', trades: 52, color: 'bg-indigo-500' },
-  { rank: 5, name: 'C. Rusa', initial: 'CR', starting: '1,000,000', netWorth: '1,072,000', gain: '+7.2%', trades: 29, color: 'bg-rose-500' },
-];
+const getAvatarColor = (index) => {
+  const colors = ['bg-amber-500', 'bg-blue-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-rose-500', 'bg-purple-500', 'bg-cyan-500'];
+  return colors[index % colors.length];
+};
 
 const MarketLeaderboard = () => {
+    const { searchTerm } = useSearch();
+    const [traders, setTraders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [session, setSession] = useState(null);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const [tradersData, sessionData] = await Promise.all([
+                marketAdminService.getLeaderboard(),
+                marketAdminService.getSession()
+            ]);
+            setTraders(tradersData);
+            setSession(sessionData);
+        } catch (error) {
+            console.error('Failed to load leaderboard or session', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
+    
+    const filteredTraders = (traders || []).filter(t => 
+        (t.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+        (t.initials?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    );
+
+    const topGain = traders.length > 0 ? Math.max(...traders.map(t => t.gainPercentage)) : 0;
+    const avgNetWorth = traders.length > 0 ? traders.reduce((acc, t) => acc + t.currentNetWorth, 0) / traders.length : 0;
+
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Leaderboard</h1>
-                    <p className="text-slate-500 font-bold mt-1">Trader performance rankings — RP Karongi · Semester 1</p>
+                    <p className="text-slate-500 font-bold mt-1">
+                        Trader performance rankings — {session ? `${session.institutionName} · ${session.academicPeriod}` : 'General Rankings'}
+                    </p>
                 </div>
                 <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-[#fad059] rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-lg active:scale-95">
                     Export Grades
@@ -24,9 +58,9 @@ const MarketLeaderboard = () => {
             {/* Top Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Participants', value: '342' },
-                    { label: 'Best gain', value: '+38.4%', color: 'text-emerald-600' },
-                    { label: 'Avg. portfolio', value: 'RWF 1.24M' },
+                    { label: 'Participants', value: loading ? '—' : traders.length },
+                    { label: 'Best gain', value: loading ? '—' : `+${topGain.toFixed(1)}%`, color: 'text-emerald-600' },
+                    { label: 'Avg. portfolio', value: loading ? '—' : `RWF ${(avgNetWorth / 1000000).toFixed(2)}M` },
                     { label: 'Days running', value: '47' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-md transition-all">
@@ -56,25 +90,37 @@ const MarketLeaderboard = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 text-sm">
-                            {traders.map((trader) => (
-                                <tr key={trader.rank} className={`hover:bg-slate-50 transition-colors group ${trader.rank === 1 ? 'bg-slate-50/30' : ''}`}>
-                                    <td className="px-8 py-6 font-black text-slate-400">{trader.rank}</td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 rounded-full ${trader.color} flex items-center justify-center text-white font-black text-xs shadow-lg`}>
-                                                {trader.initial}
-                                            </div>
-                                            <span className="font-black text-slate-900">{trader.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6 font-bold text-slate-500">RWF {trader.starting}</td>
-                                    <td className="px-8 py-6 font-black text-slate-900">RWF {trader.netWorth}</td>
-                                    <td className="px-8 py-6">
-                                        <span className="text-emerald-600 font-black">{trader.gain}</span>
-                                    </td>
-                                    <td className="px-8 py-6 font-black text-slate-400 text-right">{trader.trades}</td>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="py-20 text-center text-slate-400 font-bold">Calculating rankings...</td>
                                 </tr>
-                            ))}
+                            ) : filteredTraders.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="py-20 text-center text-slate-400 font-medium">No traders found.</td>
+                                </tr>
+                            ) : (
+                                filteredTraders.map((trader, index) => (
+                                    <tr key={trader.userId} className={`hover:bg-slate-50 transition-colors group ${index === 0 ? 'bg-slate-50/30' : ''}`}>
+                                        <td className="px-8 py-6 font-black text-slate-400">{index + 1}</td>
+                                        <td className="px-8 py-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-10 h-10 rounded-full ${getAvatarColor(index)} flex items-center justify-center text-white font-black text-xs shadow-lg`}>
+                                                    {trader.initials}
+                                                </div>
+                                                <span className="font-black text-slate-900">{trader.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6 font-bold text-slate-500">RWF {Number(trader.startingBalance).toLocaleString()}</td>
+                                        <td className="px-8 py-6 font-black text-slate-900">RWF {Number(trader.currentNetWorth).toLocaleString()}</td>
+                                        <td className="px-8 py-6">
+                                            <span className={`${trader.gainPercentage >= 0 ? 'text-emerald-600' : 'text-rose-600'} font-black`}>
+                                                {trader.gainPercentage >= 0 ? '+' : ''}{trader.gainPercentage}%
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-6 font-black text-slate-400 text-right">{trader.tradesCount}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

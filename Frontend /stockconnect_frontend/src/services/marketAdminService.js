@@ -43,5 +43,47 @@ export const marketAdminService = {
       console.error('Error fetching orders:', error);
       throw error;
     }
+  },
+
+  /**
+   * Fetch leaderboard data
+   */
+  async getLeaderboard() {
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/leaderboard`);
+      if (!response.ok) throw new Error('Failed to fetch leaderboard');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Fetch market analytics
+   */
+  async getAnalytics() {
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/analytics`);
+      if (!response.ok) throw new Error('Failed to fetch analytics');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Fetch current market session info
+   */
+  async getSession() {
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/session`);
+      if (!response.ok) throw new Error('Failed to fetch session info');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching session:', error);
+      throw error;
+    }
   }
 };
