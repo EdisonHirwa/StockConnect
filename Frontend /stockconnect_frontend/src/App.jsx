@@ -22,12 +22,16 @@ import OrderBook from './pages/marketAdmin/OrderBook';
 import TradeHistory from './pages/marketAdmin/TradeHistory';
 import SessionControl from './pages/marketAdmin/SessionControl';
 import { SearchProvider } from './context/SearchContext';
+import { Toaster } from 'react-hot-toast';
+import WebSocketAlerts from './components/WebSocketAlerts';
 import './App.css';
 
 function App() {
   return (
     <SearchProvider>
       <BrowserRouter>
+        <WebSocketAlerts />
+        <Toaster />
         <Routes>
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
