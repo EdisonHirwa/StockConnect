@@ -85,5 +85,55 @@ export const marketAdminService = {
       console.error('Error fetching session:', error);
       throw error;
     }
+  },
+
+  /**
+   * Toggle market session status
+   */
+  async toggleSession() {
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/session/toggle`, { method: 'PATCH' });
+      if (!response.ok) throw new Error('Failed to toggle session');
+      return await response.json();
+    } catch (error) {
+      console.error('Error toggling session:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update session schedule
+   */
+  async updateSchedule(scheduleData) {
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/session/schedule`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(scheduleData)
+      });
+      if (!response.ok) throw new Error('Failed to update schedule');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating schedule:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Broadcast market scenario event
+   */
+  async broadcastEvent(eventData) {
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/session/broadcast`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData)
+      });
+      if (!response.ok) throw new Error('Failed to broadcast event');
+      return await response.json();
+    } catch (error) {
+      console.error('Error broadcasting event:', error);
+      throw error;
+    }
   }
 };

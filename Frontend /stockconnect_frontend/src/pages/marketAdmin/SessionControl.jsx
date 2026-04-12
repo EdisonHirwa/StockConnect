@@ -6,11 +6,28 @@ const SessionControl = () => {
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [schedule, setSchedule] = useState({
+        openTime: '09:00',
+        closeTime: '15:00',
+        sessionDate: new Date().toISOString().split('T')[0],
+        autoOpen: true
+    });
+
+    const [event, setEvent] = useState({
+        type: 'Rate hike — National',
+        company: 'All companies',
+        description: 'The NBR raised the repo rate by 0.5%...',
+    });
+
     const loadData = async () => {
         setLoading(true);
         try {
             const data = await marketAdminService.getSession();
             setSession(data);
+            if (data.openTime) setSchedule(prev => ({ ...prev, openTime: data.openTime }));
+            if (data.closeTime) setSchedule(prev => ({ ...prev, closeTime: data.closeTime }));
+            if (data.sessionDate) setSchedule(prev => ({ ...prev, sessionDate: data.sessionDate }));
+            if (data.autoOpen !== undefined) setSchedule(prev => ({ ...prev, autoOpen: data.autoOpen }));
         } catch (error) {
             console.error('Failed to load session info', error);
         } finally {
@@ -21,6 +38,29 @@ const SessionControl = () => {
     useEffect(() => {
         loadData();
     }, []);
+
+    const handleToggleSession = async () => {
+        try {
+            const updated = await marketAdminService.toggleSession();
+            setSession(updated);
+        } catch(e) { alert('Failed to toggle session'); }
+    };
+
+    const handleSaveSchedule = async () => {
+        try {
+            const updated = await marketAdminService.updateSchedule(schedule);
+            setSession(updated);
+            alert('Schedule saved successfully');
+        } catch(e) { alert('Failed to update schedule'); }
+    };
+
+    const handleBroadcast = async () => {
+        try {
+            await marketAdminService.broadcastEvent(event);
+            alert('Event broadcasted successfully');
+        } catch(e) { alert('Failed to broadcast event'); }
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
             {/* Top Status Bar */}
@@ -28,12 +68,18 @@ const SessionControl = () => {
                 <div>
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Current session</p>
                      <h2 className="text-xl font-black text-slate-900 flex items-center gap-3">
-                        {loading ? 'Fetching...' : `Open · 09:00 – 15:00 CAT · ${session?.institutionName} | ${session?.academicPeriod}`}
-                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg border border-emerald-200 tracking-widest">LIVE</span>
+                        {loading ? 'Fetching...' : `${session?.active ? 'Open' : 'Closed'} · ${session?.institutionName} | ${session?.academicPeriod}`}
+                        {session?.active ? (
+                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg border border-emerald-200 tracking-widest">LIVE</span>
+                        ) : (
+                            <span className="text-[10px] font-black text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200 tracking-widest">CLOSED</span>
+                        )}
                      </h2>
                 </div>
-                <button className="px-8 py-3 bg-red-500 text-white font-black text-sm rounded-2xl hover:bg-red-600 transition-all shadow-lg active:scale-95">
-                    Close Market
+                <button 
+                    onClick={handleToggleSession}
+                    className={`px-8 py-3 font-black text-sm rounded-2xl transition-all shadow-lg active:scale-95 text-white ${session?.active ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}>
+                    {session?.active ? 'Close Market' : 'Open Market'}
                 </button>
             </div>
 
@@ -48,14 +94,20 @@ const SessionControl = () => {
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Open time</label>
                                 <div className="relative">
                                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input type="text" defaultValue="09 : 00 AM" className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all" />
+                                    <input type="time" 
+                                        value={schedule.openTime} 
+                                        onChange={e => setSchedule({...schedule, openTime: e.target.value})}
+                                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Close time</label>
                                 <div className="relative">
                                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input type="text" defaultValue="03 : 00 PM" className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all" />
+                                    <input type="time" 
+                                        value={schedule.closeTime}
+                                        onChange={e => setSchedule({...schedule, closeTime: e.target.value})}
+                                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all" />
                                 </div>
                             </div>
                         </div>
@@ -64,19 +116,25 @@ const SessionControl = () => {
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Session date</label>
                             <div className="relative">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input type="text" defaultValue="04 / 08 / 2025" className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all" />
+                                <input type="date" 
+                                    value={schedule.sessionDate}
+                                    onChange={e => setSchedule({...schedule, sessionDate: e.target.value})}
+                                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Auto-open</label>
-                            <select className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all appearance-none cursor-pointer">
-                                <option>Enabled</option>
-                                <option>Disabled</option>
+                            <select 
+                                value={schedule.autoOpen ? 'true' : 'false'}
+                                onChange={e => setSchedule({...schedule, autoOpen: e.target.value === 'true'})}
+                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all appearance-none cursor-pointer">
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
                             </select>
                         </div>
 
-                        <button className="w-full py-4 bg-slate-950 text-[#fad059] font-black rounded-2xl hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg">
+                        <button onClick={handleSaveSchedule} className="w-full py-4 bg-slate-950 text-[#fad059] font-black rounded-2xl hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg">
                             <Save size={18} />
                             Save schedule
                         </button>
@@ -96,7 +154,9 @@ const SessionControl = () => {
                      <div className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Scenario type</label>
-                            <select className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all cursor-pointer">
+                            <select 
+                                onChange={e => setEvent({...event, type: e.target.value})}
+                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all cursor-pointer">
                                 <option>Rate hike — National</option>
                                 <option>Company Acquisition</option>
                                 <option>Inflation Surge</option>
@@ -105,7 +165,9 @@ const SessionControl = () => {
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Affects company</label>
-                            <select className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all cursor-pointer">
+                            <select 
+                                onChange={e => setEvent({...event, company: e.target.value})}
+                                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all cursor-pointer">
                                 <option>All companies</option>
                                 <option>Bank of Kigali (BK)</option>
                                 <option>MTN Rwanda</option>
@@ -118,12 +180,13 @@ const SessionControl = () => {
                                 <HelpCircle size={14} className="opacity-40" />
                             </label>
                             <textarea 
-                                defaultValue="The NBR raised the repo rate by 0.5%..."
+                                value={event.description}
+                                onChange={e => setEvent({...event, description: e.target.value})}
                                 className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black text-slate-900 outline-none focus:ring-2 focus:ring-[#fad059] transition-all min-h-[120px] resize-none"
                             ></textarea>
                         </div>
 
-                        <button className="w-full py-4 bg-slate-950 text-white font-black rounded-2xl hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg">
+                        <button onClick={handleBroadcast} className="w-full py-4 bg-slate-950 text-white font-black rounded-2xl hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg">
                             <Zap size={18} className="text-amber-500" />
                             Broadcast event
                         </button>
