@@ -1,6 +1,8 @@
 package com.stockconnect.models;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +22,18 @@ public class MarketSession {
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
+    @Column(name = "open_time")
+    private LocalTime openTime;
+
+    @Column(name = "close_time")
+    private LocalTime closeTime;
+
+    @Column(name = "session_date")
+    private LocalDate sessionDate;
+
+    @Column(name = "auto_open")
+    private boolean autoOpen = true;
+
     public MarketSession() {}
 
     public MarketSession(String institutionName, String academicPeriod) {
@@ -38,4 +52,16 @@ public class MarketSession {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public LocalTime getOpenTime() { return openTime; }
+    public void setOpenTime(LocalTime openTime) { this.openTime = openTime; }
+
+    public LocalTime getCloseTime() { return closeTime; }
+    public void setCloseTime(LocalTime closeTime) { this.closeTime = closeTime; }
+
+    public LocalDate getSessionDate() { return sessionDate; }
+    public void setSessionDate(LocalDate sessionDate) { this.sessionDate = sessionDate; }
+
+    public boolean isAutoOpen() { return autoOpen; }
+    public void setAutoOpen(boolean autoOpen) { this.autoOpen = autoOpen; }
 }
