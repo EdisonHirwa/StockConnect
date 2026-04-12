@@ -1,9 +1,11 @@
 package com.stockconnect.controllers;
 
 import com.stockconnect.models.AuditLog;
+import com.stockconnect.models.SystemSettings;
 import com.stockconnect.models.Trade;
 import com.stockconnect.models.User;
 import com.stockconnect.repositories.AuditLogRepository;
+import com.stockconnect.repositories.SystemSettingsRepository;
 import com.stockconnect.repositories.TradeRepository;
 import com.stockconnect.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class SuperAdminController {
 
     @Autowired
     private AuditLogRepository auditLogRepository;
+
+    @Autowired
+    private SystemSettingsRepository systemSettingsRepository;
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboardData() {
@@ -220,5 +225,40 @@ public class SuperAdminController {
         }
         
         return ResponseEntity.ok(logs);
+    }
+
+    // ── System Settings ───────────────────────────────────────────────────────
+
+    @GetMapping("/settings")
+    public ResponseEntity<SystemSettings> getSettings() {
+        SystemSettings settings = systemSettingsRepository.findById(1L)
+                .orElseGet(() -> systemSettingsRepository.save(new SystemSettings()));
+        return ResponseEntity.ok(settings);
+    }
+
+    @PutMapping("/settings")
+    public ResponseEntity<SystemSettings> updateSettings(@RequestBody SystemSettings updated) {
+        SystemSettings settings = systemSettingsRepository.findById(1L)
+                .orElseGet(SystemSettings::new);
+
+        settings.setId(1L);
+        settings.setPlatformName(updated.getPlatformName());
+        settings.setSupportEmail(updated.getSupportEmail());
+        settings.setTagline(updated.getTagline());
+        settings.setCurrency(updated.getCurrency());
+        settings.setTimezone(updated.getTimezone());
+        settings.setRequire2fa(updated.isRequire2fa());
+        settings.setSessionTimeout(updated.getSessionTimeout());
+        settings.setNotifyNewRegistrations(updated.isNotifyNewRegistrations());
+        settings.setNotifyLargeDeposits(updated.isNotifyLargeDeposits());
+        settings.setNotifySystemErrors(updated.isNotifySystemErrors());
+        settings.setNotifyDailyReports(updated.isNotifyDailyReports());
+
+        SystemSettings saved = systemSettingsRepository.save(settings);
+
+        // Log this change
+        auditLogRepository.save(new AuditLog("admin@system", "SETTINGS_UPDATE", "System Settings saved", "127.0.0.1", "bg-slate-500/10 text-slate-400 border-slate-500/20"));
+
+        return ResponseEntity.ok(saved);
     }
 }

@@ -70,5 +70,32 @@ export const superAdminService = {
       console.error('Error updating user role:', error);
       throw error;
     }
-  }
+  },
+
+  getSettings: async () => {
+    try {
+      const response = await apiFetch('http://localhost:8080/api/superadmin/settings');
+      if (!response.ok) throw new Error('Failed to fetch settings.');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      throw error;
+    }
+  },
+
+  updateSettings: async (settings) => {
+    try {
+      const response = await apiFetch('http://localhost:8080/api/superadmin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+      if (!response.ok) throw new Error('Failed to save settings.');
+      return await response.json();
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      throw error;
+    }
+  },
 };
+

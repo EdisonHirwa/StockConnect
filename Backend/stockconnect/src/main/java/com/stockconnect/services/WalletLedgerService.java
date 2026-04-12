@@ -26,6 +26,9 @@ public class WalletLedgerService {
     @Autowired
     private LedgerTransactionRepository ledgerTransactionRepository;
 
+    @Autowired
+    private AuditLogService auditLogService;
+
     public Wallet getWalletByUserId(UUID userId) {
         return walletRepository.findByUserId(userId)
                 .orElseGet(() -> createEmptyWalletForUser(userId));
@@ -48,6 +51,10 @@ public class WalletLedgerService {
         Wallet savedWallet = walletRepository.save(wallet);
 
         createLedger(savedWallet, TransactionType.DEPOSIT, amount, referenceId, description);
+
+        // Log wallet deposit
+        auditLogService.log(wallet.getUser().getEmail(), "WALLET_DEPOSIT", "Amount: " + amount, "127.0.0.1", "bg-emerald-500/10 text-emerald-500 border-emerald-500/20");
+
         return savedWallet;
     }
 
@@ -77,6 +84,10 @@ public class WalletLedgerService {
         Wallet savedWallet = walletRepository.save(wallet);
 
         createLedger(savedWallet, TransactionType.WITHDRAWAL, amount.negate(), referenceId, description);
+
+        // Log wallet withdrawal
+        auditLogService.log(wallet.getUser().getEmail(), "WALLET_WITHDRAW", "Amount: " + amount, "127.0.0.1", "bg-rose-500/10 text-rose-500 border-rose-500/20");
+
         return savedWallet;
     }
 

@@ -36,6 +36,9 @@ public class OrderManagementService {
     @Autowired
     private MarketSessionRepository marketSessionRepository;
 
+    @Autowired
+    private AuditLogService auditLogService;
+
     private void checkMarketOpen() {
         MarketSession session = marketSessionRepository.findAll().stream().findFirst()
                 .orElse(null);
@@ -80,6 +83,9 @@ public class OrderManagementService {
 
         matchingEngineService.matchOrders(companyId);
 
+        // Log order placement
+        auditLogService.log(user.getEmail(), "ORDER_BUY", company.getTickerSymbol() + " Qty:" + quantity, "127.0.0.1", "bg-blue-500/10 text-blue-500 border-blue-500/20");
+
         return savedOrder;
     }
 
@@ -116,6 +122,9 @@ public class OrderManagementService {
 
         matchingEngineService.matchOrders(companyId);
 
+        // Log order placement
+        auditLogService.log(user.getEmail(), "ORDER_SELL", company.getTickerSymbol() + " Qty:" + quantity, "127.0.0.1", "bg-amber-500/10 text-amber-500 border-amber-500/20");
+
         return savedOrder;
     }
 
@@ -145,5 +154,8 @@ public class OrderManagementService {
         }
 
         orderRepository.save(order);
+        
+        // Log order cancellation
+        auditLogService.log(order.getUser().getEmail(), "ORDER_CANCEL", order.getCompany().getTickerSymbol() + " #" + orderId.toString().substring(0, 8), "127.0.0.1", "bg-rose-500/10 text-rose-500 border-rose-500/20");
     }
 }

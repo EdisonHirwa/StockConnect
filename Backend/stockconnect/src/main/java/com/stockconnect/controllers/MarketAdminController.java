@@ -9,6 +9,7 @@ import com.stockconnect.models.*;
 import com.stockconnect.repositories.*;
 import com.stockconnect.services.CompanyService;
 import com.stockconnect.services.PortfolioService;
+import com.stockconnect.services.AuditLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -47,6 +48,9 @@ public class MarketAdminController {
     @Autowired
     private MarketSessionRepository marketSessionRepository;
 
+    @Autowired
+    private AuditLogService auditLogService;
+
     @GetMapping("/companies")
     public ResponseEntity<List<Company>> getAllCompanies() {
         return ResponseEntity.ok(companyService.getAllCompanies());
@@ -55,12 +59,21 @@ public class MarketAdminController {
     @PostMapping("/admin/companies")
     public ResponseEntity<Company> createCompany(@RequestBody CompanyCreateRequest request) {
         Company company = companyService.createCompany(request.companyName(), request.tickerSymbol(), request.currentPrice(), request.totalShares());
+        
+        // Log company creation
+        auditLogService.log("COMPANY_CREATE", company.getTickerSymbol(), "bg-emerald-500/10 text-emerald-500 border-emerald-500/20");
+        
         return ResponseEntity.ok(company);
     }
 
     @PutMapping("/admin/companies/{id}/price")
     public ResponseEntity<Company> updatePrice(@PathVariable UUID id, @RequestParam BigDecimal newPrice) {
-        return ResponseEntity.ok(companyService.updateCompanyPrice(id, newPrice));
+        Company company = companyService.updateCompanyPrice(id, newPrice);
+        
+        // Log price update
+        auditLogService.log("PRICE_UPDATE", company.getTickerSymbol() + " -> " + newPrice, "bg-amber-500/10 text-amber-500 border-amber-500/20");
+        
+        return ResponseEntity.ok(company);
     }
 
     @GetMapping("/admin/stats")
@@ -173,7 +186,12 @@ public class MarketAdminController {
         MarketSession session = marketSessionRepository.findAll().stream().findFirst()
             .orElseGet(() -> marketSessionRepository.save(new MarketSession("StockConnect", "Main Platform")));
         session.setActive(!session.isActive());
-        return ResponseEntity.ok(marketSessionRepository.save(session));
+        MarketSession savedSession = marketSessionRepository.save(session);
+        
+        // Log session toggle
+        auditLogService.log("SESSION_TOGGLE", savedSession.isActive() ? "OPEN" : "CLOSED", "bg-slate-500/10 text-slate-400 border-slate-500/20");
+        
+        return ResponseEntity.ok(savedSession);
     }
 
     @PutMapping("/admin/session/schedule")

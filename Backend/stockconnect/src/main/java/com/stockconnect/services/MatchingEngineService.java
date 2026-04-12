@@ -28,6 +28,9 @@ public class MatchingEngineService {
     @Autowired
     private CompanyService companyService;
 
+    @Autowired
+    private AuditLogService auditLogService;
+
     @Transactional
     public void matchOrders(UUID companyId) {
         List<Order> buyOrders = orderRepository.findByCompanyIdAndSideAndStatusOrderByTargetPriceDescCreatedAtAsc(companyId, OrderSide.BUY, OrderStatus.PENDING);
@@ -103,5 +106,9 @@ public class MatchingEngineService {
         // Deduct locked shares and credit their wallet
         portfolioService.deductLockedShares(sellOrder.getUser().getId(), company.getId(), quantity);
         walletLedgerService.addTradeProceeds(sellOrder.getUser().getId(), totalTradeValue, "Sold " + quantity + " shares of " + company.getTickerSymbol(), trade.getId());
+
+        // Log trade execution for both parties
+        auditLogService.log(buyOrder.getUser().getEmail(), "TRADE_EXECUTE", "Buy " + company.getTickerSymbol() + " Qty:" + quantity, "System", "bg-emerald-500/10 text-emerald-500 border-emerald-500/20");
+        auditLogService.log(sellOrder.getUser().getEmail(), "TRADE_EXECUTE", "Sell " + company.getTickerSymbol() + " Qty:" + quantity, "System", "bg-emerald-500/10 text-emerald-500 border-emerald-500/20");
     }
 }

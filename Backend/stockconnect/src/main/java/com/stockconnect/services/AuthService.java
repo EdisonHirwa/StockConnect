@@ -27,15 +27,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final AuditLogService auditLogService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager,
+                       AuditLogService auditLogService) {
         this.userRepository      = userRepository;
         this.passwordEncoder     = passwordEncoder;
         this.jwtService          = jwtService;
         this.authenticationManager = authenticationManager;
+        this.auditLogService = auditLogService;
     }
 
     // ── Register ─────────────────────────────────────────────────────────────
@@ -69,7 +72,12 @@ public class AuthService {
                 .role(role)
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        
+        // Log registration
+        auditLogService.log(savedUser.getEmail(), "REGISTER", savedUser.getRole().name(), "127.0.0.1", "bg-emerald-500/10 text-emerald-500 border-emerald-500/20");
+        
+        return savedUser;
     }
 
     // ── Login ─────────────────────────────────────────────────────────────────
@@ -84,7 +92,7 @@ public class AuthService {
         String accessToken  = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        return AuthResponseDTO.builder()
+        AuthResponseDTO response = AuthResponseDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
@@ -94,5 +102,10 @@ public class AuthService {
                 .fullName(user.getFullName())
                 .phoneNumber(user.getPhoneNumber())
                 .build();
+
+        // Log login
+        auditLogService.log(user.getEmail(), "LOGIN", "Web Platform", "127.0.0.1", "bg-blue-500/10 text-blue-500 border-blue-500/20");
+
+        return response;
     }
 }
