@@ -11,10 +11,14 @@ import com.stockconnect.services.CompanyService;
 import com.stockconnect.services.PortfolioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -110,7 +114,7 @@ public class MarketAdminController {
                     : BigDecimal.ZERO;
             
             long tradesCount = tradeRepository.findAll().stream()
-                    .filter(t -> t.getBuyer().getId().equals(user.getId()) || t.getSeller().getId().equals(user.getId()))
+                    .filter(t -> t.getBuyOrder().getUser().getId().equals(user.getId()) || t.getSellOrder().getUser().getId().equals(user.getId()))
                     .count();
 
             String initials = "";
@@ -159,9 +163,41 @@ public class MarketAdminController {
 
     @GetMapping("/admin/session")
     public ResponseEntity<MarketSession> getActiveSession() {
-        return ResponseEntity.ok(marketSessionRepository.findByIsActiveTrue()
-                .orElse(new MarketSession("StockConnect", "Main Platform")));
+        MarketSession session = marketSessionRepository.findAll().stream().findFirst()
+                .orElseGet(() -> marketSessionRepository.save(new MarketSession("StockConnect", "Main Platform")));
+        return ResponseEntity.ok(session);
+    }
+
+    @PatchMapping("/admin/session/toggle")
+    public ResponseEntity<MarketSession> toggleSessionStatus() {
+        MarketSession session = marketSessionRepository.findAll().stream().findFirst()
+            .orElseGet(() -> marketSessionRepository.save(new MarketSession("StockConnect", "Main Platform")));
+        session.setActive(!session.isActive());
+        return ResponseEntity.ok(marketSessionRepository.save(session));
+    }
+
+    @PutMapping("/admin/session/schedule")
+    public ResponseEntity<MarketSession> updateSessionSchedule(@RequestBody SessionScheduleRequest request) {
+        MarketSession session = marketSessionRepository.findAll().stream().findFirst()
+            .orElseGet(() -> marketSessionRepository.save(new MarketSession("StockConnect", "Main Platform")));
+        
+        session.setOpenTime(request.openTime());
+        session.setCloseTime(request.closeTime());
+        session.setSessionDate(request.sessionDate());
+        session.setAutoOpen(request.autoOpen());
+        
+        return ResponseEntity.ok(marketSessionRepository.save(session));
+    }
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    @PostMapping("/admin/session/broadcast")
+    public ResponseEntity<Map<String, String>> broadcastEvent(@RequestBody Map<String, String> payload) {
+        messagingTemplate.convertAndSend("/topic/market-events", payload);
+        return ResponseEntity.ok(Map.of("message", "Event broadcasted successfully"));
     }
 
     public record CompanyCreateRequest(String companyName, String tickerSymbol, BigDecimal currentPrice, Long totalShares) {}
+    public record SessionScheduleRequest(LocalTime openTime, LocalTime closeTime, LocalDate sessionDate, boolean autoOpen) {}
 }

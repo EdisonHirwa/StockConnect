@@ -3,6 +3,7 @@ package com.stockconnect.services;
 import com.stockconnect.models.*;
 import com.stockconnect.repositories.OrderRepository;
 import com.stockconnect.repositories.UserRepository;
+import com.stockconnect.repositories.MarketSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,12 +33,24 @@ public class OrderManagementService {
     @Autowired
     private MatchingEngineService matchingEngineService;
 
+    @Autowired
+    private MarketSessionRepository marketSessionRepository;
+
+    private void checkMarketOpen() {
+        MarketSession session = marketSessionRepository.findAll().stream().findFirst()
+                .orElse(null);
+        if (session == null || !session.isActive()) {
+            throw new RuntimeException("Market is currently closed. Trading is suspended.");
+        }
+    }
+
     public List<Order> getUserOrders(UUID userId) {
         return orderRepository.findByUserId(userId);
     }
 
     @Transactional
     public Order placeBuyOrder(UUID userId, UUID companyId, Long quantity, BigDecimal price, OrderType type) {
+        checkMarketOpen();
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Company company = companyService.getCompanyById(companyId);
 
@@ -72,6 +85,7 @@ public class OrderManagementService {
 
     @Transactional
     public Order placeSellOrder(UUID userId, UUID companyId, Long quantity, BigDecimal price, OrderType type) {
+        checkMarketOpen();
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Company company = companyService.getCompanyById(companyId);
 
