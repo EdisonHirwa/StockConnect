@@ -3,22 +3,22 @@ spring:
     name: stockconnect
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/StockConnectDb?stringtype=unspecified
-    username: edison
-    password: 'Admin@123'
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
 server:
-  port: 8080
+  port: ${APP_PORT:8080}
 
 # JWT Configuration
 jwt:
@@ -29,7 +29,7 @@ jwt:
 # Super Admin seed credentials (used once at startup if no SUPER_ADMIN exists)
 app:
   super-admin:
-    full-name: Super Admin
-    email: admin@stockconnect.com
-    password: Admin@SuperSecure123
-    phone-number: "+250 700 000 000"
+    full-name: ${SUPERADMIN_NAME}
+    email: ${SUPERADMIN_EMAIL}
+    password: ${SUPERADMIN_PASSWORD}
+    phone-number: "${SUPERADMIN_PHONENUMBER}"
