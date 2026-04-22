@@ -49,7 +49,10 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "http://localhost:3000",
-                "https://stock-connect-iota.vercel.app"
+                "https://stock-connect-iota.vercel.app",
+                "https://stockconnect.live",
+                "https://www.stockconnect.live"
+                
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
