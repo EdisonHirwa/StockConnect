@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 const WebSocketAlerts = () => {
     useEffect(() => {
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS(`${import.meta.env.VITE_WS_BASE_URL}/ws`),
             debug: (str) => console.log(str),
             reconnectDelay: 5000,
         });

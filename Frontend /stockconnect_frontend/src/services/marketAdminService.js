@@ -1,6 +1,6 @@
 import { apiFetch } from './apiClient';
 
-const API_BASE_URL = 'http://localhost:8080/api/admin';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/admin`;
 
 export const marketAdminService = {
   /**

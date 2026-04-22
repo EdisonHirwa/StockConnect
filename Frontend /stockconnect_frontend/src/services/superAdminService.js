@@ -1,9 +1,11 @@
 import { apiFetch } from './apiClient';
 
+const BASE = import.meta.env.VITE_API_BASE_URL;
+
 export const superAdminService = {
   getDashboardData: async () => {
     try {
-      const response = await apiFetch('http://localhost:8080/api/superadmin/dashboard');
+      const response = await apiFetch(`${BASE}/superadmin/dashboard`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -16,7 +18,7 @@ export const superAdminService = {
 
   getAuditLogs: async () => {
     try {
-      const response = await apiFetch('http://localhost:8080/api/superadmin/audit-logs');
+      const response = await apiFetch(`${BASE}/superadmin/audit-logs`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -29,7 +31,7 @@ export const superAdminService = {
 
   getAllUsers: async () => {
     try {
-      const response = await apiFetch('http://localhost:8080/api/superadmin/users');
+      const response = await apiFetch(`${BASE}/superadmin/users`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -42,7 +44,7 @@ export const superAdminService = {
 
   deleteUser: async (id) => {
     try {
-      const response = await apiFetch(`http://localhost:8080/api/superadmin/users/${id}`, {
+      const response = await apiFetch(`${BASE}/superadmin/users/${id}`, {
         method: 'DELETE'
       });
       if (!response.ok) {
@@ -57,7 +59,7 @@ export const superAdminService = {
 
   updateUserRole: async (id, newRole) => {
     try {
-      const response = await apiFetch(`http://localhost:8080/api/superadmin/users/${id}/role`, {
+      const response = await apiFetch(`${BASE}/superadmin/users/${id}/role`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: newRole })
@@ -74,7 +76,7 @@ export const superAdminService = {
 
   getSettings: async () => {
     try {
-      const response = await apiFetch('http://localhost:8080/api/superadmin/settings');
+      const response = await apiFetch(`${BASE}/superadmin/settings`);
       if (!response.ok) throw new Error('Failed to fetch settings.');
       return await response.json();
     } catch (error) {
@@ -85,7 +87,7 @@ export const superAdminService = {
 
   updateSettings: async (settings) => {
     try {
-      const response = await apiFetch('http://localhost:8080/api/superadmin/settings', {
+      const response = await apiFetch(`${BASE}/superadmin/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
