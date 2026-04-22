@@ -1,5 +1,6 @@
 package com.stockconnect.exceptions;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -50,12 +51,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    // ── Duplicate Key / Unique Constraint (409) ──────────────────────────────
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrity(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
+
+        String raw = ex.getMostSpecificCause().getMessage().toLowerCase();
+        String friendly;
+
+        if (raw.contains("phone_number")) {
+            friendly = "This phone number is already registered. Please use a different number.";
+        } else if (raw.contains("email")) {
+            friendly = "This email address is already in use. Please log in or use a different email.";
+        } else if (raw.contains("ticker_symbol") || raw.contains("ticker")) {
+            friendly = "A company with this ticker symbol already exists.";
+        } else {
+            friendly = "This record already exists or violates a uniqueness rule. Please check your input.";
+        }
+
+        return buildError(HttpStatus.CONFLICT, "DUPLICATE_ENTRY", friendly, request.getRequestURI());
+    }
+
     // ── Generic 500 fallback ─────────────────────────────────────────────────
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(
             Exception ex, HttpServletRequest request) {
+        // Never expose raw exception/SQL messages to the client
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR",
-                ex.getMessage(), request.getRequestURI());
+                "An unexpected server error occurred. Please try again later.", request.getRequestURI());
     }
 
     // ── Helper ───────────────────────────────────────────────────────────────
