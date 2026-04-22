@@ -7,6 +7,8 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
 
   jpa:
     hibernate:
@@ -33,3 +35,4 @@ app:
     email: ${SUPERADMIN_EMAIL}
     password: ${SUPERADMIN_PASSWORD}
     phone-number: "${SUPERADMIN_PHONENUMBER}"
+
