@@ -306,7 +306,7 @@ const SystemSettings = () => {
                   Clear Application Cache
                 </button>
                 <a
-                  href="http://localhost:8080/api/superadmin/audit-logs"
+                  href={`${import.meta.env.VITE_API_BASE_URL}/superadmin/audit-logs`}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full block bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-800 px-5 py-3.5 rounded-xl font-bold transition-all shadow-sm text-center"

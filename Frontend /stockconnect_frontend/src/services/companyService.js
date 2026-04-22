@@ -1,7 +1,7 @@
 import { apiFetch } from './apiClient';
 
-// Base URL configuration - assuming backend is running on 8080
-const API_BASE_URL = 'http://localhost:8080/api';
+// Base URL configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const companyService = {
   /**
