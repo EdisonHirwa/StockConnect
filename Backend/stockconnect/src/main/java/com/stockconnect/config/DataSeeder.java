@@ -49,21 +49,29 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedSuperAdmin() {
-        if (userRepository.existsByRole(Role.SUPER_ADMIN)) {
-            log.info("[Seeder] Super Admin already exists — skipping seed.");
-            return;
-        }
-
-        User superAdmin = User.builder()
-                .fullName(superAdminFullName)
-                .email(superAdminEmail)
-                .phoneNumber(superAdminPhoneNumber)
-                .password(passwordEncoder.encode(superAdminPassword))
-                .role(Role.SUPER_ADMIN)
-                .build();
-
-        userRepository.save(superAdmin);
-        log.info("[Seeder] Super Admin created successfully: {}", superAdminEmail);
+        userRepository.findByRole(Role.SUPER_ADMIN).ifPresentOrElse(
+            existing -> {
+                // Always sync credentials from env so a misconfigured first-start
+                // never permanently locks the admin account.
+                existing.setFullName(superAdminFullName);
+                existing.setEmail(superAdminEmail);
+                existing.setPhoneNumber(superAdminPhoneNumber);
+                existing.setPassword(passwordEncoder.encode(superAdminPassword));
+                userRepository.save(existing);
+                log.info("[Seeder] Super Admin credentials synced from env: {}", superAdminEmail);
+            },
+            () -> {
+                User superAdmin = User.builder()
+                        .fullName(superAdminFullName)
+                        .email(superAdminEmail)
+                        .phoneNumber(superAdminPhoneNumber)
+                        .password(passwordEncoder.encode(superAdminPassword))
+                        .role(Role.SUPER_ADMIN)
+                        .build();
+                userRepository.save(superAdmin);
+                log.info("[Seeder] Super Admin created successfully: {}", superAdminEmail);
+            }
+        );
     }
 
     private void seedCompanies() {
