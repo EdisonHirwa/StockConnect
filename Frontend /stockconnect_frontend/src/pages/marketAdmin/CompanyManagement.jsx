@@ -17,6 +17,10 @@ const CompanyManagement = () => {
     industry: 'Technology'
   });
   const [adding, setAdding] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null); // for View Details modal
+  const [priceEditId, setPriceEditId] = useState(null);
+  const [newPriceValue, setNewPriceValue] = useState('');
+  const [updatingPrice, setUpdatingPrice] = useState(false);
 
   const fetchCompanies = async () => {
     setLoading(true);
@@ -51,6 +55,22 @@ const CompanyManagement = () => {
       alert(err.message || 'Failed to create company');
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleUpdatePrice = async (company) => {
+    const price = parseFloat(newPriceValue);
+    if (isNaN(price) || price <= 0) { alert('Please enter a valid price.'); return; }
+    setUpdatingPrice(true);
+    try {
+      await companyService.updateCompanyPrice(company.id, price);
+      setPriceEditId(null);
+      setNewPriceValue('');
+      fetchCompanies();
+    } catch (err) {
+      alert(err.message || 'Failed to update price');
+    } finally {
+      setUpdatingPrice(false);
     }
   };
 
@@ -175,11 +195,17 @@ const CompanyManagement = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <button className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors mr-2">
+                        <button 
+                          onClick={() => setSelectedCompany(company)}
+                          className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors mr-2"
+                        >
                           View Details
                         </button>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-200 rounded-lg transition-colors">
-                          <MoreVertical size={16} />
+                        <button 
+                          onClick={() => { setPriceEditId(company.id); setNewPriceValue(company.currentPrice); }}
+                          className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                        >
+                          Update Price
                         </button>
                       </td>
                     </tr>
@@ -294,6 +320,68 @@ const CompanyManagement = () => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {selectedCompany && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200 font-bold text-sm">
+                  {selectedCompany.tickerSymbol.substring(0, 2)}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">{selectedCompany.companyName}</h2>
+                  <p className="text-xs font-mono text-slate-500">{selectedCompany.tickerSymbol} &bull; {selectedCompany.industry || 'Common Stock'}</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setSelectedCompany(null)} className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1 rounded-lg transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-8 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Current Price</p>
+                  <p className="text-xl font-black text-emerald-600">RWF {Number(selectedCompany.currentPrice).toLocaleString()}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Shares</p>
+                  <p className="text-xl font-black text-slate-900">{Number(selectedCompany.totalShares).toLocaleString()}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Market Cap</p>
+                  <p className="text-xl font-black text-slate-900">RWF {((Number(selectedCompany.currentPrice) * selectedCompany.totalShares) / 1000000).toFixed(2)}M</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Sector</p>
+                  <p className="text-xl font-black text-slate-900">{selectedCompany.industry || 'N/A'}</p>
+                </div>
+              </div>
+              {/* Inline price update */}
+              <div className="border-t border-slate-100 pt-4">
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Update Market Price</p>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    value={priceEditId === selectedCompany.id ? newPriceValue : selectedCompany.currentPrice}
+                    onChange={e => { setPriceEditId(selectedCompany.id); setNewPriceValue(e.target.value); }}
+                    className="flex-1 bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
+                    placeholder="New price in RWF"
+                  />
+                  <button
+                    onClick={async () => { await handleUpdatePrice(selectedCompany); setSelectedCompany(null); }}
+                    disabled={updatingPrice}
+                    className="px-6 py-3 bg-slate-900 text-[#fad059] font-black rounded-xl hover:bg-slate-800 transition-all disabled:opacity-50"
+                  >
+                    {updatingPrice ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

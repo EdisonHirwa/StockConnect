@@ -2,6 +2,66 @@ import React, { useEffect, useState } from 'react';
 import { RefreshCw, Download } from 'lucide-react';
 import { useSearch } from '../../context/SearchContext';
 import { marketAdminService } from '../../services/marketAdminService';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+const exportToPDF = (trades) => {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Header bar
+    doc.setFillColor(15, 23, 42); // slate-900
+    doc.rect(0, 0, doc.internal.pageSize.width, 22, 'F');
+    doc.setTextColor(250, 208, 89); // #fad059
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('StockConnect', 14, 14);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text('Market Admin — Executed Trades Report', 60, 14);
+    doc.setFontSize(9);
+    doc.text(`Generated: ${today}`, doc.internal.pageSize.width - 60, 14);
+
+    // Table
+    autoTable(doc, {
+        startY: 28,
+        head: [['#', 'Company', 'Buyer', 'Seller', 'Exec. Price (RWF)', 'Qty', 'Value (RWF)', 'Time']],
+        body: trades.map((t, i) => [
+            i + 1,
+            t.tickerSymbol,
+            t.buyerName,
+            t.sellerName,
+            `RWF ${Number(t.executionPrice).toLocaleString()}`,
+            t.executionQuantity,
+            `RWF ${Number(t.totalValue).toLocaleString()}`,
+            new Date(t.executedAt).toLocaleString()
+        ]),
+        headStyles: { fillColor: [15, 23, 42], textColor: [250, 208, 89], fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8, textColor: [30, 41, 59] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        styles: { cellPadding: 3, lineColor: [226, 232, 240], lineWidth: 0.1 },
+        margin: { left: 14, right: 14 },
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Page ${i} of ${pageCount} — StockConnect Confidential`, 14, doc.internal.pageSize.height - 6);
+    }
+
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trades_report_${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
 
 const TradeHistory = () => {
     const [trades, setTrades] = useState([]);
@@ -48,7 +108,10 @@ const TradeHistory = () => {
                     >
                         <RefreshCw size={22} className={loading ? 'animate-spin' : ''} />
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-[#fad059] rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                    <button 
+                        onClick={() => exportToPDF(filteredTrades)}
+                        className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-[#fad059] rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-lg active:scale-95"
+                    >
                         <Download size={18} />
                         Export
                     </button>
