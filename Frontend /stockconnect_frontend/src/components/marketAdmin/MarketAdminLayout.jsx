@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Building2, TrendingUp, BookOpen, Repeat, PlayCircle, Trophy, LogOut, ChevronRight } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 import { useAuth } from '../../context/AuthContext';
 import LogoutModal from '../shared/LogoutModal';
 import HeaderBar from '../shared/HeaderBar';
+import { marketAdminService } from '../../services/marketAdminService';
 
 const MarketAdminLayout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [pendingOrderCount, setPendingOrderCount] = useState(null);
+
+  useEffect(() => {
+    marketAdminService.getAllOrders()
+      .then(orders => {
+        const pending = orders.filter(o => o.status === 'PENDING').length;
+        setPendingOrderCount(pending);
+      })
+      .catch(() => setPendingOrderCount(null));
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -19,7 +30,7 @@ const MarketAdminLayout = () => {
   const marketSection = [
     { name: 'Market Dashboard', icon: LayoutDashboard, path: '/market-admin/dashboard' },
     { name: 'Companies', icon: Building2, path: '/market-admin/companies' },
-    { name: 'Order Book', icon: BookOpen, path: '/market-admin/order-book', badge: 12 },
+    { name: 'Order Book', icon: BookOpen, path: '/market-admin/order-book', badge: pendingOrderCount },
     { name: 'Trades', icon: Repeat, path: '/market-admin/trades' },
   ];
 

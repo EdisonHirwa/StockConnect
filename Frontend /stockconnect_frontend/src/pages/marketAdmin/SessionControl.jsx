@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PlayCircle, Clock, Calendar, Save, Zap, HelpCircle } from 'lucide-react';
 import { marketAdminService } from '../../services/marketAdminService';
+import toast from 'react-hot-toast';
 
 const SessionControl = () => {
     const [session, setSession] = useState(null);
@@ -30,6 +31,7 @@ const SessionControl = () => {
             if (data.autoOpen !== undefined) setSchedule(prev => ({ ...prev, autoOpen: data.autoOpen }));
         } catch (error) {
             console.error('Failed to load session info', error);
+            toast.error('Failed to load session info');
         } finally {
             setLoading(false);
         }
@@ -43,22 +45,23 @@ const SessionControl = () => {
         try {
             const updated = await marketAdminService.toggleSession();
             setSession(updated);
-        } catch(e) { alert('Failed to toggle session'); }
+            toast.success(`Market ${updated.active ? 'opened' : 'closed'} successfully`);
+        } catch(e) { toast.error('Failed to toggle session'); }
     };
 
     const handleSaveSchedule = async () => {
         try {
             const updated = await marketAdminService.updateSchedule(schedule);
             setSession(updated);
-            alert('Schedule saved successfully');
-        } catch(e) { alert('Failed to update schedule'); }
+            toast.success('Schedule saved successfully');
+        } catch(e) { toast.error('Failed to update schedule'); }
     };
 
     const handleBroadcast = async () => {
         try {
             await marketAdminService.broadcastEvent(event);
-            alert('Event broadcasted successfully');
-        } catch(e) { alert('Failed to broadcast event'); }
+            toast.success('Event broadcasted to all traders');
+        } catch(e) { toast.error('Failed to broadcast event'); }
     };
 
     return (

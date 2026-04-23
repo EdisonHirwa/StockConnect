@@ -2,8 +2,99 @@ import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { DownloadCloud, Layers, RefreshCw } from 'lucide-react';
 import { marketAdminService } from '../../services/marketAdminService';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+const exportAnalyticsPDF = (data) => {
+    if (!data) return;
+    const doc = new jsPDF();
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Dark header
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, doc.internal.pageSize.width, 28, 'F');
+    doc.setTextColor(250, 208, 89);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('StockConnect', 14, 13);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text('Market Analytics Report', 14, 22);
+    doc.setFontSize(8);
+    doc.text(`Generated: ${today}`, doc.internal.pageSize.width - 14, 22, { align: 'right' });
+
+    let currentY = 33;
+
+    // Industry Distribution table
+    if (data.industryDistribution && Object.keys(data.industryDistribution).length > 0) {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('Industry Distribution', 14, currentY);
+        currentY += 4;
+        autoTable(doc, {
+            startY: currentY,
+            head: [['Sector / Industry', 'Listed Companies']],
+            body: Object.entries(data.industryDistribution).map(([name, count]) => [name, count]),
+            headStyles: { fillColor: [15, 23, 42], textColor: [250, 208, 89], fontStyle: 'bold', fontSize: 9 },
+            bodyStyles: { fontSize: 9, textColor: [30, 41, 59] },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            columnStyles: { 1: { halign: 'center' } },
+            styles: { cellPadding: 3, lineColor: [226, 232, 240], lineWidth: 0.1 },
+            margin: { left: 14, right: 14 },
+        });
+        currentY = doc.lastAutoTable.finalY + 12;
+    }
+
+    // Volume History table
+    if (data.volumeHistory && data.volumeHistory.length > 0) {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('Trading Volume History', 14, currentY);
+        currentY += 4;
+        autoTable(doc, {
+            startY: currentY,
+            head: [['Date', 'Buy Volume', 'Sell Volume', 'Net']],
+            body: data.volumeHistory.map(v => {
+                const net = Number(v.buyVolume) - Number(v.sellVolume);
+                return [v.date, Number(v.buyVolume).toLocaleString(), Number(v.sellVolume).toLocaleString(), (net >= 0 ? '+' : '') + net.toLocaleString()];
+            }),
+            headStyles: { fillColor: [15, 23, 42], textColor: [250, 208, 89], fontStyle: 'bold', fontSize: 9 },
+            bodyStyles: { fontSize: 9, textColor: [30, 41, 59] },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            didParseCell(d) {
+                if (d.section === 'body' && d.column.index === 3) {
+                    d.cell.styles.textColor = String(d.cell.raw).startsWith('+') ? [5, 150, 105] : [220, 38, 38];
+                    d.cell.styles.fontStyle = 'bold';
+                }
+            },
+            styles: { cellPadding: 3, lineColor: [226, 232, 240], lineWidth: 0.1 },
+            margin: { left: 14, right: 14 },
+        });
+    }
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Page ${i} of ${pageCount} — StockConnect Confidential`, 14, doc.internal.pageSize.height - 6);
+    }
+
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics_report_${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
 
 const MarketAnalytics = () => {
   const [data, setData] = useState(null);
@@ -49,7 +140,11 @@ const MarketAnalytics = () => {
           >
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
-          <button className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm flex items-center gap-2 self-start md:self-auto">
+          <button 
+            onClick={() => exportAnalyticsPDF(data)}
+            disabled={!data || loading}
+            className="bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm flex items-center gap-2 self-start md:self-auto"
+          >
             <DownloadCloud size={20} />
             Export Report
           </button>
@@ -140,20 +235,42 @@ const MarketAnalytics = () => {
       {/* Platform Insights */}
       <div className="bg-white p-8 rounded-[1.5rem] border border-slate-100 shadow-sm mt-6">
         <h3 className="text-xl font-bold text-slate-900 mb-2">Automated Insights</h3>
-        <ul className="space-y-4 mt-5">
-          <li className="flex gap-4 p-4 rounded-xl border border-emerald-100 bg-emerald-50/50">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
-            <p className="text-sm text-slate-700 font-medium leading-relaxed">Technology sector saw a <span className="font-bold text-emerald-600">12% increase</span> in total volume over the last 48 hours compared to the 30-day moving average.</p>
-          </li>
-          <li className="flex gap-4 p-4 rounded-xl border border-orange-100 bg-orange-50/50">
-            <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 shrink-0"></div>
-            <p className="text-sm text-slate-700 font-medium leading-relaxed">High volatility detected in Energy sector. Consider reviewing risk management thresholds manually.</p>
-          </li>
-          <li className="flex gap-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50">
-            <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
-            <p className="text-sm text-slate-700 font-medium leading-relaxed">Global total active users hit an all-time high of <span className="font-bold text-slate-900">4.2 Million</span> concurrently during yesterday's market open period.</p>
-          </li>
-        </ul>
+        {loading || !data ? (
+          <p className="text-slate-400 font-medium mt-4">Generating insights from live data...</p>
+        ) : (() => {
+          const topSector = industryChartData.length > 0
+            ? industryChartData.reduce((a, b) => a.value >= b.value ? a : b)
+            : null;
+          const totalBuyVol = volumeChartData.reduce((s, v) => s + v.buy, 0);
+          const totalSellVol = volumeChartData.reduce((s, v) => s + v.sell, 0);
+          const buySellRatio = totalSellVol > 0 ? (totalBuyVol / totalSellVol).toFixed(2) : 'N/A';
+          return (
+            <ul className="space-y-4 mt-5">
+              {topSector && (
+                <li className="flex gap-4 p-4 rounded-xl border border-emerald-100 bg-emerald-50/50">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
+                  <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                    <span className="font-bold text-emerald-600">{topSector.name}</span> is the dominant sector with <span className="font-bold text-slate-900">{topSector.value} {topSector.value === 1 ? 'company' : 'companies'}</span> listed, representing the largest share of the exchange by company count.
+                  </p>
+                </li>
+              )}
+              {volumeChartData.length > 0 ? (
+                <li className="flex gap-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
+                  <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                    Buy/Sell ratio is <span className="font-bold text-slate-900">{buySellRatio}x</span> — total buy volume: <span className="font-bold text-emerald-600">{totalBuyVol.toLocaleString()}</span>, sell volume: <span className="font-bold text-rose-600">{totalSellVol.toLocaleString()}</span> across all tracked periods.
+                  </p>
+                </li>
+              ) : null}
+              <li className="flex gap-4 p-4 rounded-xl border border-indigo-100 bg-indigo-50/50">
+                <div className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0"></div>
+                <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                  Total of <span className="font-bold text-slate-900">{totalCompaniesCount} {totalCompaniesCount === 1 ? 'company' : 'companies'}</span> are currently listed across <span className="font-bold text-indigo-600">{industryChartData.length} {industryChartData.length === 1 ? 'sector' : 'sectors'}</span> on this exchange.
+                </p>
+              </li>
+            </ul>
+          );
+        })()}
       </div>
 
     </div>
