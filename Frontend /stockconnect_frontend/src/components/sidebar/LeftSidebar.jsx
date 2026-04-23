@@ -71,14 +71,14 @@ const LeftSidebar = ({ isOpen, onClose }) => {
         <LogOut size={20} />
         <span className="font-medium">Logout</span>
       </button>
-
-      {showModal && (
-        <LogoutModal
-          onConfirm={handleLogout}
-          onCancel={() => setShowModal(false)}
-        />
-      )}
     </div>
+
+    {showModal && (
+      <LogoutModal
+        onConfirm={handleLogout}
+        onCancel={() => setShowModal(false)}
+      />
+    )}
     </>
   );
 };

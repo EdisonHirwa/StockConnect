@@ -121,7 +121,6 @@ const MarketAdminLayout = () => {
             </div>
           </div>
           
-          {/* Sign Out Button */}
           <div className="mt-auto pt-6 border-t border-slate-800/50">
             <button
               onClick={() => setShowModal(true)}
@@ -132,14 +131,14 @@ const MarketAdminLayout = () => {
             </button>
           </div>
         </div>
-
-        {showModal && (
-          <LogoutModal
-            onConfirm={handleLogout}
-            onCancel={() => setShowModal(false)}
-          />
-        )}
       </div>
+
+      {showModal && (
+        <LogoutModal
+          onConfirm={handleLogout}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
