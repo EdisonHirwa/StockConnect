@@ -27,5 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.env.production
 # .env.example is intentionally NOT here so it can be committed as a template
 

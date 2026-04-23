@@ -13,8 +13,11 @@ import java.util.UUID;
 @Service
 public class CompanyService {
 
-    @Autowired
-    private CompanyRepository companyRepository;
+    private final CompanyRepository companyRepository;
+
+    public CompanyService(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
 
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
@@ -47,6 +50,13 @@ public class CompanyService {
     public Company updateCompanyPrice(UUID companyId, BigDecimal newPrice) {
         Company company = getCompanyById(companyId);
         company.setCurrentPrice(newPrice);
+        return companyRepository.save(company);
+    }
+
+    @Transactional
+    public Company updateCompanySector(UUID companyId, String sector) {
+        Company company = getCompanyById(companyId);
+        company.setSector(sector != null && !sector.isBlank() ? sector : "Other");
         return companyRepository.save(company);
     }
 }
