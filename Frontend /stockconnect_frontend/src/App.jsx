@@ -4,6 +4,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import MainContent from './components/dashboard/MainContent';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import LandingPage from './pages/LandingPage';
 import Discover from './pages/trader/Discover';
 import Trade from './pages/trader/Trade';
 import Portfolio from './pages/trader/Portfolio';
@@ -33,41 +34,43 @@ function App() {
         <WebSocketAlerts />
         <Toaster />
         <Routes>
-        {/* Auth Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Dashboard Routes */}
-        <Route path="/" element={<DashboardLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<MainContent />} />
-          <Route path="discover" element={<Discover />} />
-          <Route path="trade" element={<Trade />} />
-          <Route path="portfolio" element={<Portfolio />} />
-          <Route path="wallet" element={<Wallet />} />
-        </Route>
+          {/* Auth Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Super Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="settings" element={<SystemSettings />} />
-          <Route path="logs" element={<AuditLogs />} />
-        </Route>
+          {/* Dashboard Routes */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<MainContent />} />
+            <Route path="/discover" element={<Discover />} />
+            <Route path="/trade" element={<Trade />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/wallet" element={<Wallet />} />
+          </Route>
 
-        {/* Market Admin Routes */}
-        <Route path="/market-admin" element={<MarketAdminLayout />}>
-          <Route index element={<Navigate to="/market-admin/dashboard" replace />} />
-          <Route path="dashboard" element={<MarketOverview />} />
-          <Route path="companies" element={<CompanyManagement />} />
-          <Route path="analytics" element={<MarketAnalytics />} />
-          <Route path="order-book" element={<OrderBook />} />
-          <Route path="trades" element={<TradeHistory />} />
-          <Route path="session-control" element={<SessionControl />} />
-          <Route path="leaderboard" element={<MarketLeaderboard />} />
-        </Route>
-      </Routes>
+          {/* Super Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="settings" element={<SystemSettings />} />
+            <Route path="logs" element={<AuditLogs />} />
+          </Route>
+
+          {/* Market Admin Routes */}
+          <Route path="/market-admin" element={<MarketAdminLayout />}>
+            <Route index element={<Navigate to="/market-admin/dashboard" replace />} />
+            <Route path="dashboard" element={<MarketOverview />} />
+            <Route path="companies" element={<CompanyManagement />} />
+            <Route path="analytics" element={<MarketAnalytics />} />
+            <Route path="order-book" element={<OrderBook />} />
+            <Route path="trades" element={<TradeHistory />} />
+            <Route path="session-control" element={<SessionControl />} />
+            <Route path="leaderboard" element={<MarketLeaderboard />} />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </SearchProvider>
   );
