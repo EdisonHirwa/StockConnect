@@ -10,7 +10,7 @@ const Discover = () => {
   const [companies, setCompanies] = useState([]);
   const { searchTerm } = useSearch();
   const [loading, setLoading] = useState(true);
-  
+
   // Trade Modal State
   const [selectedStock, setSelectedStock] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -62,8 +62,8 @@ const Discover = () => {
       setTradeLoading(false);
     }
   };
-  const filteredCompanies = companies.filter(c => 
-    c.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredCompanies = companies.filter(c =>
+    c.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.tickerSymbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -96,7 +96,7 @@ const Discover = () => {
       {filteredCompanies.length === 0 && !loading && (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
           <p className="text-slate-500 font-bold text-lg">No stocks found matching "{searchTerm}"</p>
-          <button 
+          <button
             onClick={() => setSearchTerm('')}
             className="mt-4 text-emerald-500 font-bold hover:underline"
           >
@@ -164,7 +164,7 @@ const Discover = () => {
                   <p className="text-sm text-slate-500 font-medium">
                     Traded by over {stock.investors} investors in March 2026
                   </p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="flex -space-x-3">
@@ -180,8 +180,8 @@ const Discover = () => {
                         </div>
                       )}
                     </div>
-                    
-                    <button 
+
+                    <button
                       onClick={() => handleTradeClick(stock)}
                       className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-8 rounded-xl transition-all shadow-sm focus:ring-4 focus:ring-slate-900/20 active:scale-95"
                     >
@@ -201,7 +201,7 @@ const Discover = () => {
           <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden relative">
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <h3 className="text-xl font-extrabold text-slate-900">Trade {selectedStock.ticker}</h3>
-              <button 
+              <button
                 onClick={() => setSelectedStock(null)}
                 className="text-slate-400 hover:text-slate-600 transition-colors p-1"
               >
@@ -211,20 +211,20 @@ const Discover = () => {
 
             <div className="p-6">
               <div className="mb-6 flex justify-between items-center text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                 <div>
-                    <div className="text-sm font-medium text-slate-500">Current Price</div>
-                    <div className="text-lg font-bold">{selectedStock.price}</div>
-                 </div>
-                 <div className="text-right">
-                    <div className="text-sm font-medium text-slate-500">Company</div>
-                    <div className="text-sm font-bold truncate max-w-[150px]">{selectedStock.name}</div>
-                 </div>
+                <div>
+                  <div className="text-sm font-medium text-slate-500">Current Price</div>
+                  <div className="text-lg font-bold">{selectedStock.price}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-slate-500">Company</div>
+                  <div className="text-sm font-bold truncate max-w-[150px]">{selectedStock.name}</div>
+                </div>
               </div>
 
               <div className="mb-6">
                 <label className="block text-sm font-bold text-slate-700 mb-2">Quantity (Shares)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   min="1"
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
@@ -251,7 +251,7 @@ const Discover = () => {
                 </div>
               )}
 
-              <button 
+              <button
                 onClick={handleConfirmTrade}
                 disabled={tradeLoading || !!tradeSuccess}
                 className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"

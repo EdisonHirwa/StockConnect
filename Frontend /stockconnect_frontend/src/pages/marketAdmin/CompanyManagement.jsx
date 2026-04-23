@@ -74,8 +74,8 @@ const CompanyManagement = () => {
     }
   };
 
-  const filteredCompanies = companies.filter(company => 
-    company.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredCompanies = companies.filter(company =>
+    company.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     company.tickerSymbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -89,14 +89,14 @@ const CompanyManagement = () => {
           <p className="text-slate-500 mt-1 font-medium">List new organizations and monitor market volume and trader engagement.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={fetchCompanies}
             className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-900 rounded-xl transition-all shadow-sm"
             title="Refresh"
           >
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="bg-[#fad059] hover:bg-[#e8be48] text-slate-900 px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm flex items-center gap-2 self-start md:self-auto"
           >
@@ -116,24 +116,24 @@ const CompanyManagement = () => {
         <div className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-500 rounded-xl"><Building2 size={24} /></div>
           <div>
-             <p className="text-sm font-medium text-slate-500">Total Listed</p>
-             <p className="text-2xl font-bold text-slate-900">{loading ? '—' : companies.length}</p>
+            <p className="text-sm font-medium text-slate-500">Total Listed</p>
+            <p className="text-2xl font-bold text-slate-900">{loading ? '—' : companies.length}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-emerald-50 text-emerald-500 rounded-xl"><BarChart3 size={24} /></div>
           <div>
-             <p className="text-sm font-medium text-slate-500">Total Market Cap</p>
-             <p className="text-2xl font-bold text-slate-900">
-               {loading ? '—' : `RWF ${(totalMarketCap / 1000000).toFixed(1)}M`}
-             </p>
+            <p className="text-sm font-medium text-slate-500">Total Market Cap</p>
+            <p className="text-2xl font-bold text-slate-900">
+              {loading ? '—' : `RWF ${(totalMarketCap / 1000000).toFixed(1)}M`}
+            </p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-purple-50 text-purple-500 rounded-xl"><Users size={24} /></div>
           <div>
-             <p className="text-sm font-medium text-slate-500">System Support</p>
-             <p className="text-2xl font-bold text-slate-900">Active</p>
+            <p className="text-sm font-medium text-slate-500">System Support</p>
+            <p className="text-2xl font-bold text-slate-900">Active</p>
           </div>
         </div>
       </div>
@@ -142,9 +142,9 @@ const CompanyManagement = () => {
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 w-full max-w-md focus-within:ring-2 focus-within:ring-[#fad059]/50 focus-within:border-[#fad059] transition-all">
             <Search className="text-slate-400 mr-2" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search by company name or symbol..." 
+            <input
+              type="text"
+              placeholder="Search by company name or symbol..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-transparent border-none outline-none text-sm w-full font-medium text-slate-700 placeholder:text-slate-400"
@@ -195,13 +195,13 @@ const CompanyManagement = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <button 
+                        <button
                           onClick={() => setSelectedCompany(company)}
                           className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors mr-2"
                         >
                           View Details
                         </button>
-                        <button 
+                        <button
                           onClick={() => { setPriceEditId(company.id); setNewPriceValue(company.currentPrice); }}
                           className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
                         >
@@ -236,29 +236,29 @@ const CompanyManagement = () => {
               </button>
             </div>
             <div className="p-8 space-y-6">
-              
+
               <div className="grid grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Company Legal Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
                     value={newCompany.companyName}
-                    onChange={(e) => setNewCompany({...newCompany, companyName: e.target.value})}
-                    placeholder="e.g. Bank of Kigali" 
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium" 
+                    onChange={(e) => setNewCompany({ ...newCompany, companyName: e.target.value })}
+                    placeholder="e.g. Bank of Kigali"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Ticker Symbol</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
                     maxLength={5}
                     value={newCompany.tickerSymbol}
-                    onChange={(e) => setNewCompany({...newCompany, tickerSymbol: e.target.value.toUpperCase()})}
-                    placeholder="e.g. BK" 
-                    className="uppercase w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium" 
+                    onChange={(e) => setNewCompany({ ...newCompany, tickerSymbol: e.target.value.toUpperCase() })}
+                    placeholder="e.g. BK"
+                    className="uppercase w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                   />
                 </div>
               </div>
@@ -266,31 +266,31 @@ const CompanyManagement = () => {
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Initial IPO Price (RWF)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     required
                     value={newCompany.currentPrice}
-                    onChange={(e) => setNewCompany({...newCompany, currentPrice: e.target.value})}
-                    placeholder="0.00" 
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium" 
+                    onChange={(e) => setNewCompany({ ...newCompany, currentPrice: e.target.value })}
+                    placeholder="0.00"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Total Shares Outstanding</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     required
                     value={newCompany.totalShares}
-                    onChange={(e) => setNewCompany({...newCompany, totalShares: e.target.value})}
-                    placeholder="1000000" 
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium" 
+                    onChange={(e) => setNewCompany({ ...newCompany, totalShares: e.target.value })}
+                    placeholder="1000000"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Industry / Sector</label>
-                  <select 
+                  <select
                     value={newCompany.industry}
-                    onChange={(e) => setNewCompany({...newCompany, industry: e.target.value})}
+                    onChange={(e) => setNewCompany({ ...newCompany, industry: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium"
                   >
                     <option>Technology</option>
@@ -302,16 +302,16 @@ const CompanyManagement = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div>
-                 <label className="block text-sm font-bold text-slate-700 mb-2">Company HQ & Compliance</label>
-                 <textarea rows="2" placeholder="Registered HQ address and compliance details." className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium resize-none"></textarea>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Company HQ & Compliance</label>
+                <textarea rows="2" placeholder="Registered HQ address and compliance details." className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#fad059]/40 focus:border-[#fad059] transition-all font-medium resize-none"></textarea>
               </div>
 
             </div>
             <div className="px-8 py-5 bg-slate-50 flex items-center justify-end gap-3 border-t border-slate-100">
               <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all shadow-sm">Cancel</button>
-              <button 
+              <button
                 type="submit"
                 disabled={adding}
                 className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-sm disabled:opacity-50"
