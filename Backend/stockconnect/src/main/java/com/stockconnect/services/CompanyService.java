@@ -50,3 +50,10 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 }
+    @Transactional
+    public Company updateCompanySector(UUID companyId, String sector) {
+        Company company = getCompanyById(companyId);
+        company.setSector(sector != null && !sector.isBlank() ? sector : "Other");
+        return companyRepository.save(company);
+    }
+}
