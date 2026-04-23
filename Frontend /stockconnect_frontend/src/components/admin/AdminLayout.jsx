@@ -73,14 +73,14 @@ const AdminLayout = () => {
           <LogOut size={18} />
           <span>Logout Admin</span>
         </button>
-
-        {showModal && (
-          <LogoutModal
-            onConfirm={handleLogout}
-            onCancel={() => setShowModal(false)}
-          />
-        )}
       </div>
+
+      {showModal && (
+        <LogoutModal
+          onConfirm={handleLogout}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
