@@ -136,7 +136,7 @@ const MarketLeaderboard = () => {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Leaderboard</h1>
                     <p className="text-slate-500 font-bold mt-1">

@@ -12,7 +12,7 @@ const navItems = [
   { name: 'Wallet', icon: Wallet, path: '/wallet' },
 ];
 
-const LeftSidebar = () => {
+const LeftSidebar = ({ isOpen, onClose }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -22,7 +22,17 @@ const LeftSidebar = () => {
     navigate('/login');
   };
   return (
-    <div className="w-[260px] h-full bg-slate-900 text-slate-300 flex flex-col justify-between p-6 shrink-0 transition-all duration-300">
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`fixed lg:static inset-y-0 left-0 z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 w-[260px] h-full bg-slate-900 text-slate-300 flex flex-col justify-between p-6 shrink-0 transition-transform duration-300`}>
       <div>
         {/* Logo */}
         <div className="flex items-center gap-3 px-2 mb-10 text-white cursor-pointer group">
@@ -69,6 +79,7 @@ const LeftSidebar = () => {
         />
       )}
     </div>
+    </>
   );
 };
 

@@ -11,6 +11,7 @@ const MarketAdminLayout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pendingOrderCount, setPendingOrderCount] = useState(null);
 
   useEffect(() => {
@@ -41,8 +42,16 @@ const MarketAdminLayout = () => {
 
   return (
     <div className="flex h-screen bg-[#f1f5f9] font-sans">
+      {/* Mobile Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-[280px] h-full bg-slate-900 text-slate-300 flex flex-col p-6 shrink-0 transition-all duration-300">
+      <div className={`fixed lg:static inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 w-[280px] h-full bg-slate-900 text-slate-300 flex-col p-6 shrink-0 transition-transform duration-300`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center gap-3 px-2 mb-8 text-white">
@@ -134,7 +143,7 @@ const MarketAdminLayout = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <HeaderBar searchPlaceholder="Search market metrics, companies..." />
+        <HeaderBar searchPlaceholder="Search market metrics, companies..." onMenuClick={() => setIsMobileMenuOpen(true)} />
 
         {/* Dynamic Content */}
         <main className="flex-1 overflow-y-auto p-8 bg-[#f4f7f6]">

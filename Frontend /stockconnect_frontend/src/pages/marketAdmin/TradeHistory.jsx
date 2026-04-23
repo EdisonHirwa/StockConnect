@@ -96,7 +96,7 @@ const TradeHistory = () => {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Executed Trades</h1>
                     <p className="text-slate-500 font-bold mt-1">Full audit trail of matched and settled trades</p>

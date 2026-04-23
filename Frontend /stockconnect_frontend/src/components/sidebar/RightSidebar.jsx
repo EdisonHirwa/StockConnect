@@ -105,7 +105,7 @@ const RightSidebar = () => {
   const recentTxns = txns.slice(0, 5);
 
   return (
-    <div className="w-[320px] h-full bg-slate-50 flex flex-col p-6 overflow-y-auto no-scrollbar border-l border-slate-200 shrink-0">
+    <div className="hidden xl:flex w-[320px] h-full bg-slate-50 flex-col p-6 overflow-y-auto no-scrollbar border-l border-slate-200 shrink-0">
 
       {/* Portfolio Section */}
       <div className="flex items-center justify-between mb-4">
