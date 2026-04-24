@@ -4,16 +4,22 @@ import com.stockconnect.models.*;
 import com.stockconnect.repositories.OrderRepository;
 import com.stockconnect.repositories.UserRepository;
 import com.stockconnect.repositories.MarketSessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class OrderManagementService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderManagementService.class);
+    private static final String SYSTEM_MAKER_EMAIL = "admin@stockconnect.com";
 
     @Autowired
     private OrderRepository orderRepository;
@@ -69,16 +75,19 @@ public class OrderManagementService {
 
         // If it's a MARKET order, simulate an instant counter-party (System Market Maker)
         if (type == OrderType.MARKET) {
-            User systemUser = userRepository.findByEmail("admin@stockconnect.com")
-                                            .orElseThrow(() -> new RuntimeException("System Market Maker not found"));
-            
-            // Create counter sell order
-            Order systemSell = new Order(systemUser, company, OrderSide.SELL, OrderType.MARKET, price, quantity);
-            systemSell = orderRepository.save(systemSell);
-            
-            // Ensure system has enough locked shares so portfolio service doesn't complain during deduction
-            portfolioService.addShares(systemUser.getId(), company, quantity, price);
-            portfolioService.lockShares(systemUser.getId(), company.getId(), quantity);
+            Optional<User> systemUserOpt = userRepository.findByEmail(SYSTEM_MAKER_EMAIL);
+            if (systemUserOpt.isPresent()) {
+                User systemUser = systemUserOpt.get();
+                // Create counter sell order
+                Order systemSell = new Order(systemUser, company, OrderSide.SELL, OrderType.MARKET, price, quantity);
+                systemSell = orderRepository.save(systemSell);
+                // Ensure system has enough locked shares so portfolio service doesn't complain during deduction
+                portfolioService.addShares(systemUser.getId(), company, quantity, price);
+                portfolioService.lockShares(systemUser.getId(), company.getId(), quantity);
+            } else {
+                log.warn("System Market Maker ({}) not found — skipping counter-party creation for BUY order on {}",
+                        SYSTEM_MAKER_EMAIL, company.getTickerSymbol());
+            }
         }
 
         matchingEngineService.matchOrders(companyId);
@@ -107,17 +116,20 @@ public class OrderManagementService {
 
         // If it's a MARKET order, simulate an instant counter-party (System Market Maker)
         if (type == OrderType.MARKET) {
-            User systemUser = userRepository.findByEmail("admin@stockconnect.com")
-                                            .orElseThrow(() -> new RuntimeException("System Market Maker not found"));
-            
-            // Create counter buy order
-            Order systemBuy = new Order(systemUser, company, OrderSide.BUY, OrderType.MARKET, price, quantity);
-            systemBuy = orderRepository.save(systemBuy);
-            
-            // Ensure system has enough locked funds so wallet ledger service doesn't complain during deduction
-            BigDecimal totalCost = price.multiply(BigDecimal.valueOf(quantity));
-            walletLedgerService.deposit(systemUser.getId(), totalCost, "System Liquidity Deposit", null);
-            walletLedgerService.lockFunds(systemUser.getId(), totalCost);
+            Optional<User> systemUserOpt = userRepository.findByEmail(SYSTEM_MAKER_EMAIL);
+            if (systemUserOpt.isPresent()) {
+                User systemUser = systemUserOpt.get();
+                // Create counter buy order
+                Order systemBuy = new Order(systemUser, company, OrderSide.BUY, OrderType.MARKET, price, quantity);
+                systemBuy = orderRepository.save(systemBuy);
+                // Ensure system has enough locked funds so wallet ledger service doesn't complain during deduction
+                BigDecimal totalCost = price.multiply(BigDecimal.valueOf(quantity));
+                walletLedgerService.deposit(systemUser.getId(), totalCost, "System Liquidity Deposit", null);
+                walletLedgerService.lockFunds(systemUser.getId(), totalCost);
+            } else {
+                log.warn("System Market Maker ({}) not found — skipping counter-party creation for SELL order on {}",
+                        SYSTEM_MAKER_EMAIL, company.getTickerSymbol());
+            }
         }
 
         matchingEngineService.matchOrders(companyId);

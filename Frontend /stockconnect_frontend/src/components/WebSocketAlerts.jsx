@@ -6,7 +6,13 @@ import toast from 'react-hot-toast';
 const WebSocketAlerts = () => {
     useEffect(() => {
         const client = new Client({
-            webSocketFactory: () => new SockJS(`${import.meta.env.VITE_WS_BASE_URL}/ws`),
+            webSocketFactory: () => {
+                // In production VITE_WS_BASE_URL is set (e.g. Heroku URL).
+                // In development it is undefined — fall back to a relative path
+                // so Vite's dev proxy (/ws → localhost:8080) handles it correctly.
+                const base = import.meta.env.VITE_WS_BASE_URL || '';
+                return new SockJS(`${base}/ws`);
+            },
             debug: (str) => console.log(str),
             reconnectDelay: 5000,
         });
