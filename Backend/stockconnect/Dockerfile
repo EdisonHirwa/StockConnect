@@ -36,4 +36,4 @@ COPY --from=build /app/target/*.jar app.jar
 
 # 3. Start the application
 # We use 'sh -c' so the shell properly evaluates Heroku's dynamic $PORT variable
-CMD ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]
+CMD ["sh", "-c", "java -Xmx300m -Dserver.port=${PORT} -jar app.jar"]
