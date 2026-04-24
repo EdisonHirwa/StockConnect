@@ -72,7 +72,19 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.CONFLICT, "DUPLICATE_ENTRY", friendly, request.getRequestURI());
     }
 
+    // ── Known Business Logic Errors (400) ────────────────────────────────────
+    // RuntimeExceptions thrown by services carry a safe, user-friendly message
+    // (e.g. "Market is currently closed", "Insufficient available balance to lock").
+    // Return them as 400 so the frontend can display the real reason to the user.
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntime(
+            RuntimeException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "BUSINESS_ERROR",
+                ex.getMessage(), request.getRequestURI());
+    }
+
     // ── Generic 500 fallback ─────────────────────────────────────────────────
+    // Only reached for truly unexpected errors (NPE, DB connectivity, etc.)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(
             Exception ex, HttpServletRequest request) {
